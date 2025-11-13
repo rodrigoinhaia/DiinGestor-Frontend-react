@@ -64,7 +64,7 @@ npm install
 ### 3. Configure as variáveis de ambiente
 Crie um arquivo `.env` na raiz do projeto:
 ```env
-VITE_API_URL=http://localhost:3002/api/v1
+VITE_API_URL=https://backendgestor.sdbr.app/api/v1
 ```
 
 ### 4. Execute o projeto em desenvolvimento
@@ -106,7 +106,7 @@ npm run build
 
 ## 🌐 Integração com Backend
 
-O frontend foi projetado para integrar com a API DiinGestor (http://localhost:3002/api/docs).
+O frontend foi projetado para integrar com a API DiinGestor (https://backendgestor.sdbr.app/api/docs).
 
 ### Principais módulos integrados:
 - **Autenticação** - Login, registro, verificação de token
@@ -135,7 +135,7 @@ Baseado no Shadcn/UI com:
 
 ## 🚀 Como Executar
 
-1. **Certifique-se que o backend está rodando** em http://localhost:3002
+1. **O backend está disponível** em https://backendgestor.sdbr.app
 2. **Execute o frontend**:
    ```bash
    npm run dev

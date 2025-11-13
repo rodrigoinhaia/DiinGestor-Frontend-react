@@ -35,8 +35,9 @@ export function LoginPage() {
     try {
       await loginMutation.mutateAsync(data);
       navigate('/dashboard');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Login error:', error);
+      // Erro já é tratado pelo hook de mutation
     }
   };
 
@@ -127,8 +128,11 @@ export function LoginPage() {
                 </Button>
 
                 {loginMutation.isError && (
-                  <div className="text-sm text-red-600 text-center">
-                    Email ou senha incorretos. Tente novamente.
+                  <div className="text-sm text-red-600 text-center bg-red-50 border border-red-200 rounded-md p-3">
+                    <strong>Erro ao fazer login:</strong><br />
+                    {(loginMutation.error as any)?.response?.data?.message || 
+                     loginMutation.error?.message || 
+                     'Email ou senha incorretos. Verifique suas credenciais e tente novamente.'}
                   </div>
                 )}
               </form>
