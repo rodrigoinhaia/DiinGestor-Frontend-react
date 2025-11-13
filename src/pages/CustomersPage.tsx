@@ -20,6 +20,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useCustomers } from '@/hooks/useCustomers';
+import type { Customer } from '@/services/customersService';
 
 // Dados mockados para desenvolvimento - fallback se API falhar
 const mockCustomers = [
@@ -90,7 +91,7 @@ export function CustomersPage() {
       ? (apiCustomers as any).customers
       : mockCustomers;
   
-  const filteredCustomers = customers.filter(customer =>
+  const filteredCustomers = customers.filter((customer: Customer) =>
     customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     customer.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
     customer.document.includes(searchTerm)
@@ -175,7 +176,7 @@ export function CustomersPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {customers.filter(c => c.isActive).length}
+              {customers.filter((c: Customer) => c.isActive).length}
             </div>
             <p className="text-xs text-muted-foreground">
               Com contratos vigentes
@@ -189,7 +190,7 @@ export function CustomersPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {formatCurrency(customers.reduce((acc, c) => acc + ((c as any).totalValue || 0), 0))}
+              {formatCurrency(customers.reduce((acc: number, c: Customer & { totalValue?: number }) => acc + (c.totalValue || 0), 0))}
             </div>
             <p className="text-xs text-muted-foreground">
               Valor total dos contratos
@@ -251,7 +252,7 @@ export function CustomersPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredCustomers.map((customer) => (
+                {filteredCustomers.map((customer: Customer & { contractsCount?: number; totalValue?: number }) => (
                   <TableRow key={customer.id}>
                     <TableCell className="font-medium">
                       {customer.name}
@@ -270,8 +271,8 @@ export function CustomersPage() {
                         {customer.isActive ? 'Ativo' : 'Inativo'}
                       </Badge>
                     </TableCell>
-                    <TableCell>{(customer as any).contractsCount || 0}</TableCell>
-                    <TableCell>{formatCurrency((customer as any).totalValue || 0)}</TableCell>
+                    <TableCell>{customer.contractsCount || 0}</TableCell>
+                    <TableCell>{formatCurrency(customer.totalValue || 0)}</TableCell>
                     <TableCell>{formatDate(customer.createdAt)}</TableCell>
                     <TableCell className="text-right">
                       <DropdownMenu>
