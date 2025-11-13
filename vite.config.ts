@@ -10,4 +10,16 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  server: {
+    proxy: {
+      '/api': {
+        target: 'https://backendgestor.sdbr.app',
+        changeOrigin: true,
+        secure: true,
+        headers: {
+          'Origin': 'https://backendgestor.sdbr.app'
+        }
+      }
+    }
+  }
 })

@@ -140,7 +140,25 @@ Baseado no Shadcn/UI com:
    ```bash
    npm run dev
    ```
-3. **Acesse** http://localhost:5173
+3. **Acesse** a URL mostrada no terminal (ex: http://localhost:5174)
+
+### 🔧 Solução de CORS
+
+O projeto está configurado com proxy automático para resolver problemas de CORS em desenvolvimento:
+
+- **Desenvolvimento**: Usa proxy `/api` → `https://backendgestor.sdbr.app`
+- **Produção**: Conexão direta com o backend
+
+Se ainda houver problemas de CORS, você pode:
+1. **Usar Chrome com CORS desabilitado** (apenas para desenvolvimento):
+   ```bash
+   chrome.exe --user-data-dir=/tmp/foo --disable-web-security
+   ```
+2. **Ou fazer o build e servir estaticamente**:
+   ```bash
+   npm run build
+   npm run preview
+   ```
 
 ## 📱 Login de Teste
 

@@ -1,14 +1,13 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { LoginPage } from '@/pages/LoginPage';
+import { DashboardPage } from '@/pages/DashboardPage';
+import { CustomersPage } from '@/pages/CustomersPage';
+import { PlansPage } from '@/pages/PlansPage';
+import { ContractsPage } from '@/pages/ContractsPage';
+import { InvoicesPage } from '@/pages/InvoicesPage';
+import { SettingsPage } from '@/pages/SettingsPage';
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
-
-// Componentes temporários para desenvolvimento
-const DashboardPage = () => <div className="p-6"><h1 className="text-2xl font-bold">Dashboard</h1></div>;
-const CustomersPage = () => <div className="p-6"><h1 className="text-2xl font-bold">Clientes</h1></div>;
-const PlansPage = () => <div className="p-6"><h1 className="text-2xl font-bold">Planos</h1></div>;
-const ContractsPage = () => <div className="p-6"><h1 className="text-2xl font-bold">Contratos</h1></div>;
-const InvoicesPage = () => <div className="p-6"><h1 className="text-2xl font-bold">Faturas</h1></div>;
 
 export const router = createBrowserRouter([
   {
@@ -46,6 +45,10 @@ export const router = createBrowserRouter([
       {
         path: 'invoices',
         element: <InvoicesPage />,
+      },
+      {
+        path: 'settings',
+        element: <SettingsPage />,
       },
     ],
   },

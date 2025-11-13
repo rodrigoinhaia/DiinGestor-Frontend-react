@@ -4,9 +4,16 @@ import type { AuthTokens } from '@/types/api';
 
 class ApiClient {
   private client: AxiosInstance;
-  private baseURL = import.meta.env.VITE_API_URL || 'http://localhost:3002/api/v1';
+  private baseURL = import.meta.env.DEV ? '/api/v1' : (import.meta.env.VITE_API_URL || 'https://backendgestor.sdbr.app/api/v1');
 
   constructor() {
+    // Log da configuração para debug
+    console.log('🌐 API Client Config:', {
+      isDev: import.meta.env.DEV,
+      baseURL: this.baseURL,
+      envApiUrl: import.meta.env.VITE_API_URL
+    });
+
     this.client = axios.create({
       baseURL: this.baseURL,
       timeout: 10000,
