@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { Plus, Search, Filter, MoreHorizontal, Edit, Trash2, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { CreateCustomerModal } from '@/components/CreateCustomerModal';
+import { ViewCustomerModal } from '@/components/ViewCustomerModal';
+import { EditCustomerModal } from '@/components/EditCustomerModal';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -73,6 +75,8 @@ const mockCustomers = [
 export function CustomersPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [viewCustomer, setViewCustomer] = useState<Customer & { contractsCount?: number; totalValue?: number } | null>(null);
+  const [editCustomer, setEditCustomer] = useState<Customer & { contractsCount?: number; totalValue?: number } | null>(null);
   
   // Buscar dados reais da API
   const { data: apiCustomers, isLoading, isError } = useCustomers();
@@ -282,11 +286,11 @@ export function CustomersPage() {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => setViewCustomer(customer)}>
                             <Eye className="mr-2 h-4 w-4" />
                             Visualizar
                           </DropdownMenuItem>
-                          <DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => setEditCustomer(customer)}>
                             <Edit className="mr-2 h-4 w-4" />
                             Editar
                           </DropdownMenuItem>
@@ -313,10 +317,22 @@ export function CustomersPage() {
         </CardContent>
       </Card>
 
-      {/* Modal para criar cliente */}
+      {/* Modais */}
       <CreateCustomerModal 
         open={isCreateModalOpen} 
         onOpenChange={setIsCreateModalOpen} 
+      />
+      
+      <ViewCustomerModal
+        open={!!viewCustomer}
+        onOpenChange={(open) => !open && setViewCustomer(null)}
+        customer={viewCustomer}
+      />
+      
+      <EditCustomerModal
+        open={!!editCustomer}
+        onOpenChange={(open) => !open && setEditCustomer(null)}
+        customer={editCustomer}
       />
     </div>
   );

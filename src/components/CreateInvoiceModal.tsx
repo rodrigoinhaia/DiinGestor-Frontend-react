@@ -55,13 +55,13 @@ export function CreateInvoiceModal({ open, onOpenChange }: CreateInvoiceModalPro
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent>
+      <DialogContent className="max-w-xl max-h-[90vh] overflow-hidden flex flex-col">
         <DialogHeader>
           <DialogTitle>Nova Fatura</DialogTitle>
-          <DialogDescription>Cadastre uma nova fatura</DialogDescription>
+          <DialogDescription>Gere uma fatura para um contrato</DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 overflow-y-auto flex-1 pr-2">
           <div className="space-y-2">
             <Label>Contrato *</Label>
             <Select onValueChange={(v) => setValue('contractId', v)}>

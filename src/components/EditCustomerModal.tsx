@@ -1,5 +1,5 @@
-// React import not needed with the automatic JSX runtime
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import type { SubmitHandler } from 'react-hook-form';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -7,6 +7,7 @@ import { Search, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
 import {
   Dialog,
   DialogContent,
@@ -15,15 +16,17 @@ import {
   DialogHeader,
   DialogTitle,
 } from './ui/dialog';
-import { useCreateCustomer } from '@/hooks/useCustomers';
+import { useUpdateCustomer } from '@/hooks/useCustomers';
 import { toast } from 'sonner';
 import { cnpjService } from '@/services/cnpjService';
+import type { Customer } from '@/services/customersService';
 
 const customerSchema = z.object({
   name: z.string().min(2, 'Nome deve ter pelo menos 2 caracteres'),
   email: z.string().email('Email inválido'),
   phone: z.string().min(10, 'Telefone deve ter pelo menos 10 dígitos'),
   document: z.string().min(11, 'Documento inválido'),
+  isActive: z.boolean().default(true),
   address: z.object({
     street: z.string().min(1, 'Rua é obrigatória'),
     number: z.string().min(1, 'Número é obrigatório'),
@@ -35,15 +38,17 @@ const customerSchema = z.object({
   }),
 });
 
-type CustomerFormData = z.infer<typeof customerSchema>;
+type CustomerInput = z.input<typeof customerSchema>;
+type CustomerOutput = z.output<typeof customerSchema>;
 
-interface CreateCustomerModalProps {
+interface EditCustomerModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  customer: Customer | null;
 }
 
-export function CreateCustomerModal({ open, onOpenChange }: CreateCustomerModalProps) {
-  const createCustomerMutation = useCreateCustomer();
+export function EditCustomerModal({ open, onOpenChange, customer }: EditCustomerModalProps) {
+  const updateCustomerMutation = useUpdateCustomer();
   const [isSearchingCNPJ, setIsSearchingCNPJ] = useState(false);
 
   const {
@@ -53,21 +58,51 @@ export function CreateCustomerModal({ open, onOpenChange }: CreateCustomerModalP
     setValue,
     watch,
     formState: { errors, isSubmitting },
-  } = useForm<CustomerFormData>({
+  } = useForm<CustomerInput, unknown, CustomerOutput>({
     resolver: zodResolver(customerSchema),
   });
 
   const cnpjValue = watch('document');
+  const isActiveValue = watch('isActive');
 
-  const onSubmit = async (data: CustomerFormData) => {
+  // Preencher formulário quando o cliente mudar
+  useEffect(() => {
+    if (customer) {
+      setValue('name', customer.name);
+      setValue('email', customer.email);
+      setValue('phone', customer.phone);
+      setValue('document', customer.document);
+      setValue('isActive', customer.isActive);
+      setValue('address.street', customer.address.street);
+      setValue('address.number', customer.address.number);
+      setValue('address.complement', customer.address.complement || '');
+      setValue('address.neighborhood', customer.address.neighborhood);
+      setValue('address.city', customer.address.city);
+      setValue('address.state', customer.address.state);
+      setValue('address.zipCode', customer.address.zipCode);
+    }
+  }, [customer, setValue]);
+
+  const onSubmit: SubmitHandler<CustomerOutput> = async (data) => {
+    if (!customer) return;
+
     try {
-      await createCustomerMutation.mutateAsync(data);
-      toast.success('Cliente criado com sucesso!');
-      reset();
+      await updateCustomerMutation.mutateAsync({
+        id: customer.id,
+        data: {
+          name: data.name,
+          email: data.email,
+          phone: data.phone,
+          document: data.document,
+          isActive: data.isActive,
+          address: data.address,
+        },
+      });
+      toast.success('Cliente atualizado com sucesso!');
       onOpenChange(false);
     } catch (error) {
-      toast.error('Erro ao criar cliente. Tente novamente.');
-      console.error('Erro ao criar cliente:', error);
+      toast.error('Erro ao atualizar cliente. Tente novamente.');
+      console.error('Erro ao atualizar cliente:', error);
     }
   };
 
@@ -89,7 +124,6 @@ export function CreateCustomerModal({ open, onOpenChange }: CreateCustomerModalP
     try {
       const dados = await cnpjService.buscarPorCNPJ(cnpj);
       
-      // Preencher campos automaticamente
       setValue('name', dados.razao_social || dados.nome_fantasia || '');
       
       if (dados.email) {
@@ -128,7 +162,7 @@ export function CreateCustomerModal({ open, onOpenChange }: CreateCustomerModalP
         setValue('address.zipCode', cnpjService.formatarCEP(dados.cep));
       }
       
-      toast.success('Dados preenchidos com sucesso!');
+      toast.success('Dados atualizados com sucesso!');
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Erro ao buscar CNPJ');
     } finally {
@@ -136,17 +170,31 @@ export function CreateCustomerModal({ open, onOpenChange }: CreateCustomerModalP
     }
   };
 
+  if (!customer) return null;
+
   return (
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="max-w-3xl max-h-[90vh] overflow-hidden flex flex-col p-4">
         <DialogHeader>
-          <DialogTitle className="text-xl">Novo Cliente</DialogTitle>
+          <DialogTitle className="text-xl">Editar Cliente</DialogTitle>
           <DialogDescription className="text-sm">
-            Cadastre uma nova empresa cliente (B2B)
+            Atualize as informações da empresa
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-3 flex-1">
+          {/* Status */}
+          <div className="flex items-center space-x-2 p-2 bg-muted rounded-lg">
+            <Switch
+              id="isActive"
+              checked={isActiveValue}
+              onCheckedChange={(checked) => setValue('isActive', checked)}
+            />
+            <Label htmlFor="isActive" className="cursor-pointer">
+              Cliente {isActiveValue ? 'Ativo' : 'Inativo'}
+            </Label>
+          </div>
+
           {/* Informações básicas */}
           <div className="space-y-3">
             <h3 className="text-base font-semibold">Informações Básicas</h3>
@@ -179,9 +227,6 @@ export function CreateCustomerModal({ open, onOpenChange }: CreateCustomerModalP
                 {errors.document && (
                   <p className="text-sm text-red-600">{errors.document.message}</p>
                 )}
-                <p className="mt-1 text-xs text-muted-foreground">
-                  Clique em "Buscar" para preencher automaticamente os dados da empresa
-                </p>
               </div>
               
               <div className="space-y-2 md:col-span-2">
@@ -333,7 +378,7 @@ export function CreateCustomerModal({ open, onOpenChange }: CreateCustomerModalP
               Cancelar
             </Button>
             <Button type="submit" disabled={isSubmitting} className="h-9">
-              {isSubmitting ? 'Criando...' : 'Criar Cliente'}
+              {isSubmitting ? 'Salvando...' : 'Salvar Alterações'}
             </Button>
           </DialogFooter>
         </form>

@@ -61,13 +61,13 @@ export function CreateContractModal({ open, onOpenChange }: CreateContractModalP
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent>
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
         <DialogHeader>
           <DialogTitle>Novo Contrato</DialogTitle>
-          <DialogDescription>Cadastre um novo contrato</DialogDescription>
+          <DialogDescription>Vincule um cliente a um plano</DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 overflow-y-auto flex-1 pr-2">
           <div className="space-y-2">
             <Label>Cliente *</Label>
             <Select onValueChange={(v) => setValue('customerId', v)}>

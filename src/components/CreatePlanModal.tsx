@@ -59,13 +59,13 @@ export function CreatePlanModal({ open, onOpenChange }: CreatePlanModalProps) {
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent>
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
         <DialogHeader>
           <DialogTitle>Novo Plano</DialogTitle>
-          <DialogDescription>Cadastre um novo plano</DialogDescription>
+          <DialogDescription>Cadastre um novo plano de software</DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 overflow-y-auto flex-1 pr-2">
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="name">Nome *</Label>
