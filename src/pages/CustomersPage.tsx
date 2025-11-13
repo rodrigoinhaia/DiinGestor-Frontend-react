@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Plus, Search, Filter, MoreHorizontal, Edit, Trash2, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { CreateCustomerModal } from '@/components/CreateCustomerModal';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -70,6 +71,7 @@ const mockCustomers = [
 
 export function CustomersPage() {
   const [searchTerm, setSearchTerm] = useState('');
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   
   // Buscar dados reais da API
   const { data: apiCustomers, isLoading, isError } = useCustomers();
@@ -81,7 +83,10 @@ export function CustomersPage() {
   //   search: searchTerm
   // });
 
-  const filteredCustomers = mockCustomers.filter(customer =>
+  // Usar dados da API se disponível, senão usar mock
+  const customers = apiCustomers || mockCustomers;
+  
+  const filteredCustomers = customers.filter(customer =>
     customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     customer.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
     customer.document.includes(searchTerm)
@@ -98,6 +103,35 @@ export function CustomersPage() {
     });
   };
 
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Clientes</h1>
+            <p className="text-muted-foreground">Carregando...</p>
+          </div>
+        </div>
+        <div className="flex justify-center items-center h-64">
+          <div className="text-muted-foreground">Carregando clientes...</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Clientes</h1>
+            <p className="text-muted-foreground text-red-600">Erro ao carregar dados - usando dados offline</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -108,7 +142,10 @@ export function CustomersPage() {
             Gerencie seus clientes e informações de contato
           </p>
         </div>
-        <Button className="flex items-center gap-2">
+        <Button 
+          className="flex items-center gap-2"
+          onClick={() => setIsCreateModalOpen(true)}
+        >
           <Plus className="h-4 w-4" />
           Novo Cliente
         </Button>
@@ -121,7 +158,7 @@ export function CustomersPage() {
             <CardTitle className="text-sm font-medium">Total de Clientes</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{mockCustomers.length}</div>
+            <div className="text-2xl font-bold">{customers.length}</div>
             <p className="text-xs text-muted-foreground">
               Todos os clientes cadastrados
             </p>
@@ -134,7 +171,7 @@ export function CustomersPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {mockCustomers.filter(c => c.isActive).length}
+              {customers.filter(c => c.isActive).length}
             </div>
             <p className="text-xs text-muted-foreground">
               Com contratos vigentes
@@ -148,7 +185,7 @@ export function CustomersPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {formatCurrency(mockCustomers.reduce((acc, c) => acc + c.totalValue, 0))}
+              {formatCurrency(customers.reduce((acc, c) => acc + ((c as any).totalValue || 0), 0))}
             </div>
             <p className="text-xs text-muted-foreground">
               Valor total dos contratos
@@ -229,8 +266,8 @@ export function CustomersPage() {
                         {customer.isActive ? 'Ativo' : 'Inativo'}
                       </Badge>
                     </TableCell>
-                    <TableCell>{customer.contractsCount}</TableCell>
-                    <TableCell>{formatCurrency(customer.totalValue)}</TableCell>
+                    <TableCell>{(customer as any).contractsCount || 0}</TableCell>
+                    <TableCell>{formatCurrency((customer as any).totalValue || 0)}</TableCell>
                     <TableCell>{formatDate(customer.createdAt)}</TableCell>
                     <TableCell className="text-right">
                       <DropdownMenu>
@@ -270,6 +307,12 @@ export function CustomersPage() {
           )}
         </CardContent>
       </Card>
+
+      {/* Modal para criar cliente */}
+      <CreateCustomerModal 
+        open={isCreateModalOpen} 
+        onOpenChange={setIsCreateModalOpen} 
+      />
     </div>
   );
 }
