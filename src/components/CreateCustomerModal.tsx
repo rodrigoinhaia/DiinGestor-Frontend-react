@@ -1,4 +1,4 @@
-import React from 'react';
+// React import not needed with the automatic JSX runtime
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -12,7 +12,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
+} from './ui/dialog';
 import { useCreateCustomer } from '@/hooks/useCustomers';
 import { toast } from 'sonner';
 

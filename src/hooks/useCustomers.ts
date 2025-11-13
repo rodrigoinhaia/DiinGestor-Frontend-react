@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { customersService } from '@/services/customersService';
-import type { Customer, CreateCustomerData, UpdateCustomerData } from '@/services/customersService';
+import type { CreateCustomerData, UpdateCustomerData } from '@/services/customersService';
 
 // Query Keys
 export const customerKeys = {
