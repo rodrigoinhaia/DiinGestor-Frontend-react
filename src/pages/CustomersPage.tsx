@@ -1,9 +1,8 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Plus, Search, Filter, MoreHorizontal, Edit, Trash2, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { CreateCustomerModal } from '@/components/CreateCustomerModal';
-import { ViewCustomerModal } from '@/components/ViewCustomerModal';
-import { EditCustomerModal } from '@/components/EditCustomerModal';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -24,76 +23,21 @@ import {
 import { useCustomers } from '@/hooks/useCustomers';
 import type { Customer } from '@/services/customersService';
 
-// Dados mockados para desenvolvimento - fallback se API falhar
-const mockCustomers = [
-  {
-    id: '1',
-    name: 'Tech Solutions LTDA',
-    email: 'contato@techsolutions.com.br',
-    phone: '(11) 99999-9999',
-    document: '12.345.678/0001-90',
-    isActive: true,
-    createdAt: '2024-01-15T10:00:00Z',
-    contractsCount: 3,
-    totalValue: 8500.00
-  },
-  {
-    id: '2',
-    name: 'Inovação Digital ME',
-    email: 'admin@inovacaodigital.com',
-    phone: '(21) 88888-8888',
-    document: '98.765.432/0001-10',
-    isActive: true,
-    createdAt: '2024-02-20T14:30:00Z',
-    contractsCount: 1,
-    totalValue: 2800.00
-  },
-  {
-    id: '3',
-    name: 'StartUp Tech',
-    email: 'hello@startuptech.io',
-    phone: '(31) 77777-7777',
-    document: '11.222.333/0001-44',
-    isActive: false,
-    createdAt: '2024-03-10T09:15:00Z',
-    contractsCount: 0,
-    totalValue: 0
-  },
-  {
-    id: '4',
-    name: 'Consultoria ABC',
-    email: 'contato@consultoriaabc.com.br',
-    phone: '(41) 66666-6666',
-    document: '55.666.777/0001-88',
-    isActive: true,
-    createdAt: '2024-03-25T16:45:00Z',
-    contractsCount: 2,
-    totalValue: 5200.00
-  }
-];
-
 export function CustomersPage() {
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [viewCustomer, setViewCustomer] = useState<Customer & { contractsCount?: number; totalValue?: number } | null>(null);
-  const [editCustomer, setEditCustomer] = useState<Customer & { contractsCount?: number; totalValue?: number } | null>(null);
   
-  // Buscar dados reais da API
-  const { data: apiCustomers, isLoading, isError } = useCustomers();
+  // Buscar dados reais da API do tenant atual
+  const { data: apiCustomers, isLoading, isError, error } = useCustomers();
 
-  // Em desenvolvimento usamos dados mockados
-  // const { data: customers, isLoading, error } = useCustomers({
-  //   page: currentPage,
-  //   limit: 10,
-  //   search: searchTerm
-  // });
+  // Debug: log da resposta
+  console.log('🔍 Customers API Response:', { apiCustomers, isLoading, isError, error });
 
-  // Usar dados da API se disponível, senão usar mock
+  // apiCustomers já vem como array do service
   const customers: Array<Customer & { contractsCount?: number; totalValue?: number }> = Array.isArray(apiCustomers)
     ? apiCustomers
-    : Array.isArray((apiCustomers as any)?.customers)
-      ? (apiCustomers as any).customers
-      : mockCustomers;
+    : [];
   
   const filteredCustomers = customers.filter((customer: Customer) =>
     customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -286,17 +230,9 @@ export function CustomersPage() {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => setViewCustomer(customer)}>
+                          <DropdownMenuItem onClick={() => navigate(`/customers/${customer.id}`)}>
                             <Eye className="mr-2 h-4 w-4" />
-                            Visualizar
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => setEditCustomer(customer)}>
-                            <Edit className="mr-2 h-4 w-4" />
-                            Editar
-                          </DropdownMenuItem>
-                          <DropdownMenuItem className="text-red-600">
-                            <Trash2 className="mr-2 h-4 w-4" />
-                            Excluir
+                            Visualizar Detalhes
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -317,22 +253,11 @@ export function CustomersPage() {
         </CardContent>
       </Card>
 
-      {/* Modais */}
+      {/* Modal de Criação */}
       <CreateCustomerModal 
         open={isCreateModalOpen} 
-        onOpenChange={setIsCreateModalOpen} 
-      />
-      
-      <ViewCustomerModal
-        open={!!viewCustomer}
-        onOpenChange={(open) => !open && setViewCustomer(null)}
-        customer={viewCustomer}
-      />
-      
-      <EditCustomerModal
-        open={!!editCustomer}
-        onOpenChange={(open) => !open && setEditCustomer(null)}
-        customer={editCustomer}
+        onOpenChange={setIsCreateModalOpen}
+        onShowCustomer={(c) => navigate(`/customers/${c.id}`)}
       />
     </div>
   );

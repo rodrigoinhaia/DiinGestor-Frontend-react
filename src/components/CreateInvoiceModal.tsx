@@ -55,49 +55,49 @@ export function CreateInvoiceModal({ open, onOpenChange }: CreateInvoiceModalPro
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-w-xl max-h-[90vh] overflow-hidden flex flex-col">
-        <DialogHeader>
-          <DialogTitle>Nova Fatura</DialogTitle>
-          <DialogDescription>Gere uma fatura para um contrato</DialogDescription>
+      <DialogContent className="sm:max-w-[620px] max-h-[88vh] overflow-hidden flex flex-col p-3">
+        <DialogHeader className="pb-2">
+          <DialogTitle className="text-lg">Nova Fatura</DialogTitle>
+          <DialogDescription className="text-xs">Gere uma fatura para um contrato</DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 overflow-y-auto flex-1 pr-2">
-          <div className="space-y-2">
-            <Label>Contrato *</Label>
-            <Select onValueChange={(v) => setValue('contractId', v)}>
-              <SelectTrigger>
-                <SelectValue placeholder="Selecione um contrato" />
-              </SelectTrigger>
-              <SelectContent>
-                {((contracts as Contract[]) || []).map((c) => (
-                  <SelectItem key={c.id} value={c.id}>{c.contractNumber}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {errors.contractId && <p className="text-sm text-red-600">{errors.contractId.message}</p>}
-          </div>
-
-          <div className="grid gap-4 md:grid-cols-2">
-            <div className="space-y-2">
-              <Label htmlFor="dueDate">Vencimento *</Label>
-              <Input id="dueDate" type="date" {...register('dueDate')} />
-              {errors.dueDate && <p className="text-sm text-red-600">{errors.dueDate.message}</p>}
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-2 flex-1">
+          <div className="grid grid-cols-12 gap-2">
+            <div className="col-span-12 space-y-1">
+              <Label className="text-xs">Contrato *</Label>
+              <Select onValueChange={(v) => setValue('contractId', v)}>
+                <SelectTrigger className="h-8 text-sm">
+                  <SelectValue placeholder="Selecione um contrato" />
+                </SelectTrigger>
+                <SelectContent>
+                  {((contracts as Contract[]) || []).map((c) => (
+                    <SelectItem key={c.id} value={c.id}>{c.contractNumber}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {errors.contractId && <p className="text-xs text-red-600">{errors.contractId.message}</p>}
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="amount">Valor *</Label>
-              <Input id="amount" type="number" step="0.01" {...register('amount')} />
-              {errors.amount && <p className="text-sm text-red-600">{errors.amount.message}</p>}
+
+            <div className="col-span-12 md:col-span-6 space-y-1">
+              <Label htmlFor="dueDate" className="text-xs">Vencimento *</Label>
+              <Input id="dueDate" type="date" {...register('dueDate')} className="h-8 text-sm" />
+              {errors.dueDate && <p className="text-xs text-red-600">{errors.dueDate.message}</p>}
+            </div>
+            <div className="col-span-12 md:col-span-6 space-y-1">
+              <Label htmlFor="amount" className="text-xs">Valor (R$) *</Label>
+              <Input id="amount" type="number" step="0.01" {...register('amount')} className="h-8 text-sm" />
+              {errors.amount && <p className="text-xs text-red-600">{errors.amount.message}</p>}
+            </div>
+
+            <div className="col-span-12 space-y-1">
+              <Label htmlFor="description" className="text-xs">Descrição</Label>
+              <Input id="description" placeholder="Ex: Mensalidade Dez/2025" {...register('description')} className="h-8 text-sm" />
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="description">Descrição</Label>
-            <Input id="description" placeholder="Ex: Mensalidade Dez/2025" {...register('description')} />
-          </div>
-
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={handleClose}>Cancelar</Button>
-            <Button type="submit" disabled={isSubmitting}>{isSubmitting ? 'Salvando...' : 'Criar Fatura'}</Button>
+          <DialogFooter className="pt-1">
+            <Button type="button" variant="outline" onClick={handleClose} className="h-8">Cancelar</Button>
+            <Button type="submit" disabled={isSubmitting} className="h-8">{isSubmitting ? 'Salvando...' : 'Criar Fatura'}</Button>
           </DialogFooter>
         </form>
       </DialogContent>

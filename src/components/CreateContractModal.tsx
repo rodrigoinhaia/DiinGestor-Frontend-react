@@ -61,64 +61,65 @@ export function CreateContractModal({ open, onOpenChange }: CreateContractModalP
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
-        <DialogHeader>
-          <DialogTitle>Novo Contrato</DialogTitle>
-          <DialogDescription>Vincule um cliente a um plano</DialogDescription>
+      <DialogContent className="sm:max-w-[720px] max-h-[88vh] overflow-hidden flex flex-col p-3">
+        <DialogHeader className="pb-2">
+          <DialogTitle className="text-lg">Novo Contrato</DialogTitle>
+          <DialogDescription className="text-xs">Vincule um cliente a um plano</DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 overflow-y-auto flex-1 pr-2">
-          <div className="space-y-2">
-            <Label>Cliente *</Label>
-            <Select onValueChange={(v) => setValue('customerId', v)}>
-              <SelectTrigger>
-                <SelectValue placeholder="Selecione um cliente" />
-              </SelectTrigger>
-              <SelectContent>
-                {((customers as Customer[]) || []).map((c) => (
-                  <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {errors.customerId && <p className="text-sm text-red-600">{errors.customerId.message}</p>}
-          </div>
-
-          <div className="space-y-2">
-            <Label>Plano *</Label>
-            <Select onValueChange={(v) => setValue('planId', v)}>
-              <SelectTrigger>
-                <SelectValue placeholder="Selecione um plano" />
-              </SelectTrigger>
-              <SelectContent>
-                {((plans as Plan[]) || []).map((p) => (
-                  <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {errors.planId && <p className="text-sm text-red-600">{errors.planId.message}</p>}
-          </div>
-
-          <div className="grid gap-4 md:grid-cols-2">
-            <div className="space-y-2">
-              <Label htmlFor="startDate">Início *</Label>
-              <Input id="startDate" type="date" {...register('startDate')} />
-              {errors.startDate && <p className="text-sm text-red-600">{errors.startDate.message}</p>}
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-2 flex-1">
+          <div className="grid grid-cols-12 gap-2">
+            <div className="col-span-12 md:col-span-6 space-y-1">
+              <Label className="text-xs">Cliente *</Label>
+              <Select onValueChange={(v) => setValue('customerId', v)}>
+                <SelectTrigger className="h-8 text-sm">
+                  <SelectValue placeholder="Selecione um cliente" />
+                </SelectTrigger>
+                <SelectContent>
+                  {((customers as Customer[]) || []).map((c) => (
+                    <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {errors.customerId && <p className="text-xs text-red-600">{errors.customerId.message}</p>}
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="endDate">Término *</Label>
-              <Input id="endDate" type="date" {...register('endDate')} />
-              {errors.endDate && <p className="text-sm text-red-600">{errors.endDate.message}</p>}
+
+            <div className="col-span-12 md:col-span-6 space-y-1">
+              <Label className="text-xs">Plano *</Label>
+              <Select onValueChange={(v) => setValue('planId', v)}>
+                <SelectTrigger className="h-8 text-sm">
+                  <SelectValue placeholder="Selecione um plano" />
+                </SelectTrigger>
+                <SelectContent>
+                  {((plans as Plan[]) || []).map((p) => (
+                    <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {errors.planId && <p className="text-xs text-red-600">{errors.planId.message}</p>}
+            </div>
+
+            <div className="col-span-12 md:col-span-4 space-y-1">
+              <Label htmlFor="startDate" className="text-xs">Início *</Label>
+              <Input id="startDate" type="date" {...register('startDate')} className="h-8 text-sm" />
+              {errors.startDate && <p className="text-xs text-red-600">{errors.startDate.message}</p>}
+            </div>
+            <div className="col-span-12 md:col-span-4 space-y-1">
+              <Label htmlFor="endDate" className="text-xs">Término *</Label>
+              <Input id="endDate" type="date" {...register('endDate')} className="h-8 text-sm" />
+              {errors.endDate && <p className="text-xs text-red-600">{errors.endDate.message}</p>}
+            </div>
+            <div className="col-span-12 md:col-span-4 space-y-1 flex items-end">
+              <div className="flex items-center space-x-2 h-8">
+                <Input id="autoRenew" type="checkbox" {...register('autoRenew')} className="w-4 h-4" />
+                <Label htmlFor="autoRenew" className="text-xs cursor-pointer">Renovação automática</Label>
+              </div>
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="autoRenew">Renovação automática</Label>
-            <Input id="autoRenew" type="checkbox" {...register('autoRenew')} />
-          </div>
-
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={handleClose}>Cancelar</Button>
-            <Button type="submit" disabled={isSubmitting}>{isSubmitting ? 'Salvando...' : 'Criar Contrato'}</Button>
+          <DialogFooter className="pt-1">
+            <Button type="button" variant="outline" onClick={handleClose} className="h-8">Cancelar</Button>
+            <Button type="submit" disabled={isSubmitting} className="h-8">{isSubmitting ? 'Salvando...' : 'Criar Contrato'}</Button>
           </DialogFooter>
         </form>
       </DialogContent>

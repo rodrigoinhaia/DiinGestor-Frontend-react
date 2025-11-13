@@ -47,7 +47,29 @@ export const useCreateCustomer = () => {
 
   return useMutation({
     mutationFn: (data: CreateCustomerData) => customersService.create(data),
-    onSuccess: () => {
+    onSuccess: (created) => {
+      // Update otimista / merge direto no cache
+      queryClient.setQueryData(customerKeys.lists(), (old) => {
+        if (!old) return [created];
+        // Se for array simples
+        if (Array.isArray(old)) {
+          // Evitar duplicados (caso refetch rápido)
+          if (old.some((c: any) => c.id === created.id)) return old;
+          return [...old, created];
+        }
+        // Se for objeto paginado { customers: [], ... }
+        if (Array.isArray((old as any).customers)) {
+          const current = (old as any).customers;
+          if (current.some((c: any) => c.id === created.id)) return old;
+          return {
+            ...(old as any),
+            customers: [...current, created],
+            total: ((old as any).total ?? current.length) + 1,
+          };
+        }
+        return old;
+      });
+      // Marcar como stale para garantir refetch e sincronizar dados definitivos
       queryClient.invalidateQueries({ queryKey: customerKeys.all });
     },
   });

@@ -86,6 +86,19 @@ export function EditCustomerModal({ open, onOpenChange, customer }: EditCustomer
   const onSubmit: SubmitHandler<CustomerOutput> = async (data) => {
     if (!customer) return;
 
+    // Debug: verificar o payload completo antes de enviar
+    console.log('📤 Enviando dados para update:', {
+      id: customer.id,
+      data: {
+        name: data.name,
+        email: data.email,
+        phone: data.phone,
+        document: data.document,
+        isActive: data.isActive,
+        address: data.address,
+      },
+    });
+
     try {
       await updateCustomerMutation.mutateAsync({
         id: customer.id,
@@ -101,7 +114,16 @@ export function EditCustomerModal({ open, onOpenChange, customer }: EditCustomer
       toast.success('Cliente atualizado com sucesso!');
       onOpenChange(false);
     } catch (error) {
-      toast.error('Erro ao atualizar cliente. Tente novamente.');
+      // Mensagens específicas por tipo de erro
+      const err = error as { response?: { status?: number; data?: { message?: string } } };
+      if (err?.response?.status === 404) {
+        toast.error('Cliente não encontrado. Pode ter sido removido.');
+      } else if (err?.response?.status === 409) {
+        toast.error('Conflito: ' + (err.response?.data?.message || 'CNPJ já cadastrado'));
+      } else {
+        const msg = error instanceof Error ? error.message : 'Erro ao atualizar cliente';
+        toast.error(msg);
+      }
       console.error('Erro ao atualizar cliente:', error);
     }
   };
@@ -174,15 +196,15 @@ export function EditCustomerModal({ open, onOpenChange, customer }: EditCustomer
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-w-3xl max-h-[90vh] overflow-hidden flex flex-col p-4">
-        <DialogHeader>
-          <DialogTitle className="text-xl">Editar Cliente</DialogTitle>
-          <DialogDescription className="text-sm">
+      <DialogContent className="sm:max-w-[980px] max-h-[88vh] overflow-hidden flex flex-col p-3">
+        <DialogHeader className="pb-2">
+          <DialogTitle className="text-lg">Editar Cliente</DialogTitle>
+          <DialogDescription className="text-xs">
             Atualize as informações da empresa
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-3 flex-1">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-2 flex-1">
           {/* Status */}
           <div className="flex items-center space-x-2 p-2 bg-muted rounded-lg">
             <Switch
@@ -196,25 +218,25 @@ export function EditCustomerModal({ open, onOpenChange, customer }: EditCustomer
           </div>
 
           {/* Informações básicas */}
-          <div className="space-y-3">
-            <h3 className="text-base font-semibold">Informações Básicas</h3>
+          <div className="space-y-2">
+            <h3 className="text-sm font-semibold">Informações Básicas</h3>
             
-            <div className="grid gap-3 md:grid-cols-2">
-              <div className="space-y-2 md:col-span-2">
-                <Label htmlFor="document">CNPJ *</Label>
+            <div className="grid grid-cols-12 gap-2">
+              <div className="col-span-12 space-y-1">
+                <Label htmlFor="document" className="text-xs">CNPJ *</Label>
                 <div className="flex flex-wrap gap-2 items-center">
                   <Input
                     id="document"
                     {...register('document')}
                     placeholder="00.000.000/0000-00"
-                    className="h-9 w-[300px] sm:w-[320px]"
+                    className="h-8 text-sm w-[300px] sm:w-[320px]"
                   />
                   <Button
                     type="button"
                     variant="outline"
                     onClick={handleBuscarCNPJ}
                     disabled={isSearchingCNPJ}
-                    className="shrink-0 h-9 w-[110px]"
+                    className="shrink-0 h-8 w-[110px]"
                   >
                     {isSearchingCNPJ ? (
                       <Loader2 className="h-4 w-4 animate-spin" />
@@ -225,159 +247,80 @@ export function EditCustomerModal({ open, onOpenChange, customer }: EditCustomer
                   </Button>
                 </div>
                 {errors.document && (
-                  <p className="text-sm text-red-600">{errors.document.message}</p>
+                  <p className="text-xs text-red-600">{errors.document.message}</p>
                 )}
               </div>
               
-              <div className="space-y-2 md:col-span-2">
-                <Label htmlFor="name">Razão Social *</Label>
-                <Input
-                  id="name"
-                  {...register('name')}
-                  placeholder="Nome da empresa"
-                  className="h-9"
-                />
-                {errors.name && (
-                  <p className="text-sm text-red-600">{errors.name.message}</p>
-                )}
+              <div className="col-span-12 md:col-span-6 space-y-1">
+                <Label htmlFor="name" className="text-xs">Razão Social *</Label>
+                <Input id="name" {...register('name')} placeholder="Nome da empresa" className="h-8 text-sm" />
+                {errors.name && <p className="text-xs text-red-600">{errors.name.message}</p>}
               </div>
-            </div>
-
-            <div className="grid gap-3 md:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="email">Email *</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  {...register('email')}
-                  placeholder="contato@empresa.com"
-                  className="h-9"
-                />
-                {errors.email && (
-                  <p className="text-sm text-red-600">{errors.email.message}</p>
-                )}
+              <div className="col-span-12 md:col-span-3 space-y-1">
+                <Label htmlFor="email" className="text-xs">Email *</Label>
+                <Input id="email" type="email" {...register('email')} placeholder="email@empresa.com" className="h-8 text-sm" />
+                {errors.email && <p className="text-xs text-red-600">{errors.email.message}</p>}
               </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="phone">Telefone *</Label>
-                <Input
-                  id="phone"
-                  {...register('phone')}
-                  placeholder="(11) 99999-9999"
-                  className="h-9"
-                />
-                {errors.phone && (
-                  <p className="text-sm text-red-600">{errors.phone.message}</p>
-                )}
+              <div className="col-span-12 md:col-span-3 space-y-1">
+                <Label htmlFor="phone" className="text-xs">Telefone *</Label>
+                <Input id="phone" {...register('phone')} placeholder="(11) 99999-9999" className="h-8 text-sm" />
+                {errors.phone && <p className="text-xs text-red-600">{errors.phone.message}</p>}
               </div>
             </div>
           </div>
 
           {/* Endereço */}
-          <div className="space-y-3">
-            <h3 className="text-base font-semibold">Endereço</h3>
+          <div className="space-y-2">
+            <h3 className="text-sm font-semibold">Endereço</h3>
             
-            <div className="grid gap-3 md:grid-cols-3">
-              <div className="md:col-span-2 space-y-2">
-                <Label htmlFor="street">Rua *</Label>
-                <Input
-                  id="street"
-                  {...register('address.street')}
-                  placeholder="Nome da rua"
-                  className="h-9"
-                />
-                {errors.address?.street && (
-                  <p className="text-sm text-red-600">{errors.address.street.message}</p>
-                )}
+            <div className="grid grid-cols-12 gap-2">
+              <div className="col-span-12 md:col-span-8 space-y-1">
+                <Label htmlFor="street" className="text-xs">Rua *</Label>
+                <Input id="street" {...register('address.street')} placeholder="Nome da rua" className="h-8 text-sm" />
+                {errors.address?.street && <p className="text-xs text-red-600">{errors.address.street.message}</p>}
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="number">Número *</Label>
-                <Input
-                  id="number"
-                  {...register('address.number')}
-                  placeholder="123"
-                  className="h-9 w-[140px]"
-                />
-                {errors.address?.number && (
-                  <p className="text-sm text-red-600">{errors.address.number.message}</p>
-                )}
+              <div className="col-span-12 md:col-span-4 space-y-1">
+                <Label htmlFor="number" className="text-xs">Número *</Label>
+                <Input id="number" {...register('address.number')} placeholder="123" className="h-8 text-sm max-w-[160px]" />
+                {errors.address?.number && <p className="text-xs text-red-600">{errors.address.number.message}</p>}
               </div>
-            </div>
-
-            <div className="grid gap-3 md:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="complement">Complemento</Label>
-                <Input
-                  id="complement"
-                  {...register('address.complement')}
-                  placeholder="Sala 101"
-                  className="h-9"
-                />
+              <div className="col-span-12 md:col-span-6 space-y-1">
+                <Label htmlFor="complement" className="text-xs">Complemento</Label>
+                <Input id="complement" {...register('address.complement')} placeholder="Sala 101" className="h-8 text-sm" />
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="neighborhood">Bairro *</Label>
-                <Input
-                  id="neighborhood"
-                  {...register('address.neighborhood')}
-                  placeholder="Nome do bairro"
-                  className="h-9"
-                />
-                {errors.address?.neighborhood && (
-                  <p className="text-sm text-red-600">{errors.address.neighborhood.message}</p>
-                )}
-              </div>
-            </div>
-
-            <div className="grid gap-3 md:grid-cols-3">
-              <div className="space-y-2">
-                <Label htmlFor="city">Cidade *</Label>
-                <Input
-                  id="city"
-                  {...register('address.city')}
-                  placeholder="São Paulo"
-                  className="h-9"
-                />
-                {errors.address?.city && (
-                  <p className="text-sm text-red-600">{errors.address.city.message}</p>
-                )}
+              <div className="col-span-12 md:col-span-6 space-y-1">
+                <Label htmlFor="neighborhood" className="text-xs">Bairro *</Label>
+                <Input id="neighborhood" {...register('address.neighborhood')} placeholder="Nome do bairro" className="h-8 text-sm" />
+                {errors.address?.neighborhood && <p className="text-xs text-red-600">{errors.address.neighborhood.message}</p>}
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="state">Estado *</Label>
-                <Input
-                  id="state"
-                  {...register('address.state')}
-                  placeholder="SP"
-                  maxLength={2}
-                  className="h-9 w-[80px]"
-                />
-                {errors.address?.state && (
-                  <p className="text-sm text-red-600">{errors.address.state.message}</p>
-                )}
+              <div className="col-span-12 md:col-span-5 space-y-1">
+                <Label htmlFor="city" className="text-xs">Cidade *</Label>
+                <Input id="city" {...register('address.city')} placeholder="São Paulo" className="h-8 text-sm" />
+                {errors.address?.city && <p className="text-xs text-red-600">{errors.address.city.message}</p>}
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="zipCode">CEP *</Label>
-                <Input
-                  id="zipCode"
-                  {...register('address.zipCode')}
-                  placeholder="00000-000"
-                  className="h-9 w-[130px]"
-                />
-                {errors.address?.zipCode && (
-                  <p className="text-sm text-red-600">{errors.address.zipCode.message}</p>
-                )}
+              <div className="col-span-6 md:col-span-2 space-y-1">
+                <Label htmlFor="state" className="text-xs">Estado *</Label>
+                <Input id="state" {...register('address.state')} placeholder="SP" maxLength={2} className="h-8 text-sm max-w-[80px]" />
+                {errors.address?.state && <p className="text-xs text-red-600">{errors.address.state.message}</p>}
+              </div>
+
+              <div className="col-span-6 md:col-span-5 space-y-1">
+                <Label htmlFor="zipCode" className="text-xs">CEP *</Label>
+                <Input id="zipCode" {...register('address.zipCode')} placeholder="00000-000" className="h-8 text-sm max-w-[140px]" />
+                {errors.address?.zipCode && <p className="text-xs text-red-600">{errors.address.zipCode.message}</p>}
               </div>
             </div>
           </div>
 
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={handleClose} className="h-9">
+          <DialogFooter className="pt-1">
+            <Button type="button" variant="outline" onClick={handleClose} className="h-8">
               Cancelar
             </Button>
-            <Button type="submit" disabled={isSubmitting} className="h-9">
+            <Button type="submit" disabled={isSubmitting} className="h-8">
               {isSubmitting ? 'Salvando...' : 'Salvar Alterações'}
             </Button>
           </DialogFooter>

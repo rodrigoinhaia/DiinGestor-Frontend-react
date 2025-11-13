@@ -17,7 +17,7 @@ export interface CNPJData {
 
 export const cnpjService = {
   /**
-   * Busca dados de uma empresa pelo CNPJ usando a API opencnpj.org
+   * Busca dados de uma empresa pelo CNPJ usando BrasilAPI (via proxy)
    * Remove caracteres especiais do CNPJ antes da consulta
    */
   buscarPorCNPJ: async (cnpj: string): Promise<CNPJData> => {
@@ -29,9 +29,9 @@ export const cnpjService = {
         throw new Error('CNPJ deve conter 14 dígitos');
       }
 
-      // API pública do opencnpj.org
-      const response = await axios.get<CNPJData>(
-        `https://api.opencnpj.com.br/api/v1/cnpj/${cnpjLimpo}`,
+      // Usa proxy local para evitar CORS (/cnpj-api -> brasilapi.com.br/api)
+      const response = await axios.get(
+        `/cnpj-api/cnpj/v1/${cnpjLimpo}`,
         {
           timeout: 10000,
           headers: {
@@ -40,7 +40,24 @@ export const cnpjService = {
         }
       );
 
-      return response.data;
+      // Mapear resposta da BrasilAPI para nosso formato
+      const data = response.data;
+      const cnpjData: CNPJData = {
+        razao_social: data.razao_social || data.nome_fantasia || '',
+        nome_fantasia: data.nome_fantasia || '',
+        cnpj: data.cnpj || cnpjLimpo,
+        email: data.email || data.qsa?.[0]?.nome || '',
+        telefone: data.ddd_telefone_1 || '',
+        logradouro: data.logradouro || '',
+        numero: data.numero || '',
+        complemento: data.complemento || '',
+        bairro: data.bairro || '',
+        municipio: data.municipio || '',
+        uf: data.uf || '',
+        cep: data.cep || '',
+      };
+
+      return cnpjData;
     } catch (error) {
       if (axios.isAxiosError(error)) {
         if (error.response?.status === 404) {

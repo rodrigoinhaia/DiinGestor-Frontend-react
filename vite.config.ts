@@ -19,6 +19,12 @@ export default defineConfig({
         headers: {
           'Origin': 'https://backendgestor.sdbr.app'
         }
+      },
+      '/cnpj-api': {
+        target: 'https://brasilapi.com.br/api',
+        changeOrigin: true,
+        secure: true,
+        rewrite: (path) => path.replace(/^\/cnpj-api/, '')
       }
     }
   }
