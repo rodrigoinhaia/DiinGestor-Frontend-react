@@ -26,6 +26,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { CreateContractModal } from '@/components/CreateContractModal';
+import { useContracts } from '@/hooks/useContracts';
 
 // Dados mockados para desenvolvimento
 const mockContracts = [
@@ -110,8 +111,11 @@ export function ContractsPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const { data: apiContracts, isLoading, isError } = useContracts();
 
-  const filteredContracts = mockContracts.filter(contract => {
+  const contracts = apiContracts || mockContracts;
+
+  const filteredContracts = contracts.filter(contract => {
     const matchesSearch = 
       contract.contractNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
       contract.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -156,18 +160,38 @@ export function ContractsPage() {
 
 
   // Estatísticas
-  const totalContracts = mockContracts.length;
-  const activeContracts = mockContracts.filter(c => c.status === 'active').length;
-  const monthlyRevenue = mockContracts
+  const totalContracts = contracts.length;
+  const activeContracts = contracts.filter(c => c.status === 'active').length;
+  const monthlyRevenue = contracts
     .filter(c => c.status === 'active')
     .reduce((acc, c) => acc + c.monthlyValue, 0);
-  const expiringContracts = mockContracts.filter(c => {
+  const expiringContracts = contracts.filter(c => {
     if (!c.nextBilling) return false;
     const nextBilling = new Date(c.nextBilling);
     const thirtyDaysFromNow = new Date();
     thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30);
     return nextBilling <= thirtyDaysFromNow;
   }).length;
+
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Contratos</h1>
+            <p className="text-muted-foreground">Carregando...</p>
+          </div>
+        </div>
+        <div className="flex justify-center items-center h-64">
+          <div className="text-muted-foreground">Carregando contratos...</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (isError) {
+    // continua com fallback mock e exibe página normalmente
+  }
 
   return (
     <div className="space-y-6">

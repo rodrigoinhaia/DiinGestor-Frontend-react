@@ -84,7 +84,11 @@ export function CustomersPage() {
   // });
 
   // Usar dados da API se disponível, senão usar mock
-  const customers = apiCustomers || mockCustomers;
+  const customers = Array.isArray(apiCustomers)
+    ? apiCustomers
+    : Array.isArray((apiCustomers as any)?.customers)
+      ? (apiCustomers as any).customers
+      : mockCustomers;
   
   const filteredCustomers = customers.filter(customer =>
     customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||

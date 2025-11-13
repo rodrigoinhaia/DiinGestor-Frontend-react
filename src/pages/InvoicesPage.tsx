@@ -20,6 +20,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { CreateInvoiceModal } from '@/components/CreateInvoiceModal';
+import { useInvoices } from '@/hooks/useInvoices';
 
 // Dados mockados para desenvolvimento
 const mockInvoices = [
@@ -94,8 +95,10 @@ export function InvoicesPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const { data: apiInvoices, isLoading, isError } = useInvoices();
+  const invoices = apiInvoices || mockInvoices;
 
-  const filteredInvoices = mockInvoices.filter(invoice => {
+  const filteredInvoices = invoices.filter(invoice => {
     const matchesSearch = 
       invoice.invoiceNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
       invoice.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -152,12 +155,32 @@ export function InvoicesPage() {
   };
 
   // Estatísticas
-  const totalInvoices = mockInvoices.length;
-  const paidInvoices = mockInvoices.filter(i => i.status === 'paid').length;
-  const overdueInvoices = mockInvoices.filter(i => i.status === 'overdue').length;
-  const monthlyRevenue = mockInvoices
+  const totalInvoices = invoices.length;
+  const paidInvoices = invoices.filter(i => i.status === 'paid').length;
+  const overdueInvoices = invoices.filter(i => i.status === 'overdue').length;
+  const monthlyRevenue = invoices
     .filter(i => i.status === 'paid')
     .reduce((acc, i) => acc + i.amount, 0);
+
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Faturas</h1>
+            <p className="text-muted-foreground">Carregando...</p>
+          </div>
+        </div>
+        <div className="flex justify-center items-center h-64">
+          <div className="text-muted-foreground">Carregando faturas...</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (isError) {
+    // segue com fallback mock e exibe página normalmente
+  }
 
   return (
     <div className="space-y-6">

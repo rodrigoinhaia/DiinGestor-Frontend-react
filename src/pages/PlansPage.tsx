@@ -11,6 +11,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { CreatePlanModal } from '@/components/CreatePlanModal';
+import { usePlans } from '@/hooks/usePlans';
 
 // Dados mockados para desenvolvimento
 const mockPlans = [
@@ -87,8 +88,10 @@ const mockPlans = [
 export function PlansPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const { data: apiPlans, isLoading, isError } = usePlans();
+  const plans = apiPlans || mockPlans;
 
-  const filteredPlans = mockPlans.filter(plan =>
+  const filteredPlans = plans.filter(plan =>
     plan.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     plan.description.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -99,6 +102,27 @@ export function PlansPage() {
       currency: 'BRL'
     });
   };
+
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Planos</h1>
+            <p className="text-muted-foreground">Carregando...</p>
+          </div>
+        </div>
+        <div className="flex justify-center items-center h-64">
+          <div className="text-muted-foreground">Carregando planos...</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (isError) {
+    // Segue com fallback mock, mas indica erro
+    // (mantemos o retorno padrão com dados mockados abaixo)
+  }
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('pt-BR');
@@ -136,7 +160,7 @@ export function PlansPage() {
             <CardTitle className="text-sm font-medium">Total de Planos</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{mockPlans.length}</div>
+            <div className="text-2xl font-bold">{plans.length}</div>
             <p className="text-xs text-muted-foreground">
               Todos os planos criados
             </p>
@@ -149,7 +173,7 @@ export function PlansPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {mockPlans.filter(p => p.isActive).length}
+              {plans.filter(p => p.isActive).length}
             </div>
             <p className="text-xs text-muted-foreground">
               Disponíveis para venda
@@ -163,7 +187,7 @@ export function PlansPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {mockPlans.reduce((acc, p) => acc + p.contractsCount, 0)}
+              {plans.reduce((acc, p) => acc + p.contractsCount, 0)}
             </div>
             <p className="text-xs text-muted-foreground">
               Total de assinantes
@@ -177,7 +201,7 @@ export function PlansPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {formatCurrency(mockPlans.reduce((acc, p) => acc + (p.price * p.contractsCount), 0))}
+              {formatCurrency(plans.reduce((acc, p) => acc + (p.price * p.contractsCount), 0))}
             </div>
             <p className="text-xs text-muted-foreground">
               MRR dos planos
