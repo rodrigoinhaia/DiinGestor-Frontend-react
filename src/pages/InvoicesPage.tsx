@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Plus, Search, Filter, Download, Eye, Send, RefreshCw, AlertCircle, CheckCircle, Clock, XCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -19,6 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { CreateInvoiceModal } from '@/components/CreateInvoiceModal';
 
 // Dados mockados para desenvolvimento
 const mockInvoices = [
@@ -92,6 +93,7 @@ const mockInvoices = [
 export function InvoicesPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
 
   const filteredInvoices = mockInvoices.filter(invoice => {
     const matchesSearch = 
@@ -167,7 +169,7 @@ export function InvoicesPage() {
             Gerencie todas as faturas e cobranças dos seus clientes
           </p>
         </div>
-        <Button className="flex items-center gap-2">
+        <Button className="flex items-center gap-2" onClick={() => setIsCreateOpen(true)}>
           <Plus className="h-4 w-4" />
           Nova Fatura
         </Button>
@@ -341,6 +343,7 @@ export function InvoicesPage() {
           )}
         </CardContent>
       </Card>
+      <CreateInvoiceModal open={isCreateOpen} onOpenChange={setIsCreateOpen} />
     </div>
   );
 }

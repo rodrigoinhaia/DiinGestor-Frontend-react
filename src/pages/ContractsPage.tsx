@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Plus, Search, Filter, Calendar, Download, Eye, Edit, MoreHorizontal } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -25,6 +25,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { CreateContractModal } from '@/components/CreateContractModal';
 
 // Dados mockados para desenvolvimento
 const mockContracts = [
@@ -108,6 +109,7 @@ const mockContracts = [
 export function ContractsPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
 
   const filteredContracts = mockContracts.filter(contract => {
     const matchesSearch = 
@@ -177,7 +179,7 @@ export function ContractsPage() {
             Gerencie todos os contratos de software dos seus clientes
           </p>
         </div>
-        <Button className="flex items-center gap-2">
+        <Button className="flex items-center gap-2" onClick={() => setIsCreateOpen(true)}>
           <Plus className="h-4 w-4" />
           Novo Contrato
         </Button>
@@ -352,6 +354,7 @@ export function ContractsPage() {
           )}
         </CardContent>
       </Card>
+      <CreateContractModal open={isCreateOpen} onOpenChange={setIsCreateOpen} />
     </div>
   );
 }

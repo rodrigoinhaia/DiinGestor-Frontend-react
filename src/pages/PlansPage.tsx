@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Plus, Search, Edit, Trash2, Copy, MoreHorizontal } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,6 +10,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { CreatePlanModal } from '@/components/CreatePlanModal';
 
 // Dados mockados para desenvolvimento
 const mockPlans = [
@@ -85,6 +86,7 @@ const mockPlans = [
 
 export function PlansPage() {
   const [searchTerm, setSearchTerm] = useState('');
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
 
   const filteredPlans = mockPlans.filter(plan =>
     plan.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -121,7 +123,7 @@ export function PlansPage() {
             Gerencie os planos de software e suas funcionalidades
           </p>
         </div>
-        <Button className="flex items-center gap-2">
+        <Button className="flex items-center gap-2" onClick={() => setIsCreateOpen(true)}>
           <Plus className="h-4 w-4" />
           Novo Plano
         </Button>
@@ -301,6 +303,7 @@ export function PlansPage() {
           )}
         </CardContent>
       </Card>
+      <CreatePlanModal open={isCreateOpen} onOpenChange={setIsCreateOpen} />
     </div>
   );
 }
