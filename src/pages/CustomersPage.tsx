@@ -18,9 +18,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-// import { useCustomers } from '@/hooks/useCustomers';
+import { useCustomers } from '@/hooks/useCustomers';
 
-// Dados mockados para desenvolvimento
+// Dados mockados para desenvolvimento - fallback se API falhar
 const mockCustomers = [
   {
     id: '1',
@@ -70,6 +70,9 @@ const mockCustomers = [
 
 export function CustomersPage() {
   const [searchTerm, setSearchTerm] = useState('');
+  
+  // Buscar dados reais da API
+  const { data: apiCustomers, isLoading, isError } = useCustomers();
 
   // Em desenvolvimento usamos dados mockados
   // const { data: customers, isLoading, error } = useCustomers({
