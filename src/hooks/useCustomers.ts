@@ -1,68 +1,78 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { customerService } from '@/services/customers';
-import type { CreateCustomerData } from '@/types/api';
+import { customersService } from '@/services/customersService';
+import type { Customer, CreateCustomerData, UpdateCustomerData } from '@/services/customersService';
 
-export function useCustomers(params?: {
+// Query Keys
+export const customerKeys = {
+  all: ['customers'] as const,
+  lists: () => [...customerKeys.all, 'list'] as const,
+  list: (filters: string) => [...customerKeys.lists(), { filters }] as const,
+  details: () => [...customerKeys.all, 'detail'] as const,
+  detail: (id: string) => [...customerKeys.details(), id] as const,
+};
+
+// Hooks para buscar dados
+export const useCustomers = () => {
+  return useQuery({
+    queryKey: customerKeys.lists(),
+    queryFn: customersService.getAll,
+    staleTime: 5 * 60 * 1000, // 5 minutos
+  });
+};
+
+export const useCustomer = (id: string) => {
+  return useQuery({
+    queryKey: customerKeys.detail(id),
+    queryFn: () => customersService.getById(id),
+    enabled: !!id,
+  });
+};
+
+export const useCustomersSearch = (params: {
   page?: number;
   limit?: number;
   search?: string;
-}) {
+  isActive?: boolean;
+}) => {
   return useQuery({
-    queryKey: ['customers', params],
-    queryFn: () => customerService.getCustomers(params),
+    queryKey: customerKeys.list(JSON.stringify(params)),
+    queryFn: () => customersService.search(params),
     placeholderData: (previousData) => previousData,
   });
-}
+};
 
-export function useCustomer(id: string) {
-  return useQuery({
-    queryKey: ['customer', id],
-    queryFn: () => customerService.getCustomer(id),
-    enabled: !!id,
-  });
-}
-
-export function useCustomerStats() {
-  return useQuery({
-    queryKey: ['customer-stats'],
-    queryFn: () => customerService.getCustomerStats(),
-  });
-}
-
-export function useCreateCustomerMutation() {
+// Hooks para mutations (criar, atualizar, deletar)
+export const useCreateCustomer = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: CreateCustomerData) => customerService.createCustomer(data),
+    mutationFn: (data: CreateCustomerData) => customersService.create(data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['customers'] });
-      queryClient.invalidateQueries({ queryKey: ['customer-stats'] });
+      queryClient.invalidateQueries({ queryKey: customerKeys.all });
     },
   });
-}
+};
 
-export function useUpdateCustomerMutation() {
+export const useUpdateCustomer = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: Partial<CreateCustomerData> }) =>
-      customerService.updateCustomer(id, data),
+    mutationFn: ({ id, data }: { id: string; data: UpdateCustomerData }) =>
+      customersService.update(id, data),
     onSuccess: (_, { id }) => {
-      queryClient.invalidateQueries({ queryKey: ['customers'] });
-      queryClient.invalidateQueries({ queryKey: ['customer', id] });
-      queryClient.invalidateQueries({ queryKey: ['customer-stats'] });
+      queryClient.invalidateQueries({ queryKey: customerKeys.all });
+      queryClient.invalidateQueries({ queryKey: customerKeys.detail(id) });
     },
   });
-}
+};
 
-export function useDeleteCustomerMutation() {
+export const useDeleteCustomer = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (id: string) => customerService.deleteCustomer(id),
+    mutationFn: (id: string) => customersService.delete(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['customers'] });
-      queryClient.invalidateQueries({ queryKey: ['customer-stats'] });
+      queryClient.invalidateQueries({ queryKey: customerKeys.all });
     },
   });
-}
+};
