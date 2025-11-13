@@ -63,16 +63,18 @@ interface BackendCustomer {
 }
 
 // Normalizar resposta do backend para formato do frontend
+// Backend usa: address (string), addressNumber, city, state, zipCode, neighborhood, complement
+// Frontend usa: address { street, number, city, state, zipCode, neighborhood, complement }
 function normalizeCustomer(backendData: any): Customer {
-  return {
+  const normalized = {
     id: backendData.id,
     name: backendData.name,
     email: backendData.email,
     phone: backendData.phone,
     document: backendData.document,
     address: {
-      street: backendData.street || '',
-      number: backendData.addressNumber || backendData.number || '',
+      street: backendData.address || '', // Backend usa 'address' (string) para rua
+      number: backendData.addressNumber || '',
       complement: backendData.complement || '',
       neighborhood: backendData.neighborhood || '',
       city: backendData.city || '',
@@ -83,9 +85,13 @@ function normalizeCustomer(backendData: any): Customer {
     createdAt: backendData.createdAt,
     updatedAt: backendData.updatedAt,
   };
+  
+  return normalized;
 }
 
 // Converter formato frontend (nested) para backend (flat)
+// Frontend usa: address { street, number, ... }
+// Backend usa: address (string para rua), addressNumber, city, state, zipCode, neighborhood, complement
 function denormalizeCustomer(data: CreateCustomerData | UpdateCustomerData): any {
   const payload: any = {
     name: data.name,
@@ -95,9 +101,9 @@ function denormalizeCustomer(data: CreateCustomerData | UpdateCustomerData): any
     isActive: data.isActive,
   };
 
-  // Mapear address nested para campos flat
+  // Mapear address nested para campos flat do backend
   if (data.address) {
-    payload.street = data.address.street;
+    payload.address = data.address.street; // Backend usa 'address' (string) para rua
     payload.addressNumber = data.address.number;
     payload.complement = data.address.complement || '';
     payload.neighborhood = data.address.neighborhood;
