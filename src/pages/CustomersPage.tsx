@@ -85,7 +85,7 @@ export function CustomersPage() {
   // });
 
   // Usar dados da API se disponível, senão usar mock
-  const customers = Array.isArray(apiCustomers)
+  const customers: Array<Customer & { contractsCount?: number; totalValue?: number }> = Array.isArray(apiCustomers)
     ? apiCustomers
     : Array.isArray((apiCustomers as any)?.customers)
       ? (apiCustomers as any).customers
