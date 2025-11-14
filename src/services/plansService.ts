@@ -1,6 +1,8 @@
 import { apiClient } from './api';
 import type { Plan, CreatePlanData, UpdatePlanData } from '@/types/api';
 
+export type { Plan, CreatePlanData, UpdatePlanData };
+
 function normalizePlan(data: unknown): Plan {
   const raw = data as Record<string, unknown>;
   

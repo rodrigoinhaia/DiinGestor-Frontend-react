@@ -36,17 +36,17 @@ export const systemsService = {
   },
 
   async create(data: CreateSystemData): Promise<System> {
-    console.log('📤 [systemsService] POST /plans/systems Payload:', data);
-    const response = await apiClient.post('/plans/systems', data);
-    console.log('✅ [systemsService] POST /plans/systems response:', response.data);
+    console.log('📤 [systemsService] POST /systems Payload:', data);
+    const response = await apiClient.post('/systems', data);
+    console.log('✅ [systemsService] POST /systems response:', response.data);
     return normalizeSystem(response.data);
   },
 
   async update(id: string, data: UpdateSystemData): Promise<System> {
-    console.log(`📤 [systemsService] PATCH /plans/systems/${id} Payload:`, data);
+    console.log(`📤 [systemsService] PATCH /systems/${id} Payload:`, data);
     try {
-      const response = await apiClient.patch(`/plans/systems/${id}`, data);
-      console.log(`✅ [systemsService] PATCH /plans/systems/${id} response:`, response);
+      const response = await apiClient.patch(`/systems/${id}`, data);
+      console.log(`✅ [systemsService] PATCH /systems/${id} response:`, response);
       console.log(`📦 [systemsService] response.data:`, response.data);
       const normalized = normalizeSystem(response.data);
       console.log(`🔄 [systemsService] normalized:`, normalized);
@@ -58,7 +58,7 @@ export const systemsService = {
       // Fallback para PUT se PATCH não suportado
       if (err.response?.status === 404 || err.response?.status === 405) {
         console.log('⚠️ PATCH não suportado, tentando PUT...');
-        const response = await apiClient.put(`/plans/systems/${id}`, data);
+        const response = await apiClient.put(`/systems/${id}`, data);
         console.log(`✅ [systemsService] PUT response:`, response.data);
         return normalizeSystem(response.data);
       }
@@ -67,6 +67,6 @@ export const systemsService = {
   },
 
   async delete(id: string): Promise<void> {
-    await apiClient.delete(`/plans/systems/${id}`);
+    await apiClient.delete(`/systems/${id}`);
   },
 };

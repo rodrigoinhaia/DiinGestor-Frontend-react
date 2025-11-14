@@ -49,17 +49,17 @@ export const modulesService = {
   },
 
   async create(data: CreateModuleData): Promise<Module> {
-    console.log('📤 [modulesService] POST /plans/modules Payload:', data);
-    const response = await apiClient.post('/plans/modules', data);
-    console.log('✅ [modulesService] POST /plans/modules response:', response.data);
+    console.log('📤 [modulesService] POST /modules Payload:', data);
+    const response = await apiClient.post('/modules', data);
+    console.log('✅ [modulesService] POST /modules response:', response.data);
     return normalizeModule(response.data);
   },
 
   async update(id: string, data: UpdateModuleData): Promise<Module> {
-    console.log(`📤 [modulesService] PATCH /plans/modules/${id} Payload:`, data);
+    console.log(`📤 [modulesService] PATCH /modules/${id} Payload:`, data);
     try {
-      const response = await apiClient.patch(`/plans/modules/${id}`, data);
-      console.log(`✅ [modulesService] PATCH /plans/modules/${id} response:`, response);
+      const response = await apiClient.patch(`/modules/${id}`, data);
+      console.log(`✅ [modulesService] PATCH /modules/${id} response:`, response);
       console.log(`📦 [modulesService] response.data:`, response.data);
       const normalized = normalizeModule(response.data);
       console.log(`🔄 [modulesService] normalized:`, normalized);
@@ -71,7 +71,7 @@ export const modulesService = {
       // Fallback para PUT se PATCH não suportado
       if (err.response?.status === 404 || err.response?.status === 405) {
         console.log('⚠️ PATCH não suportado, tentando PUT...');
-        const response = await apiClient.put(`/plans/modules/${id}`, data);
+        const response = await apiClient.put(`/modules/${id}`, data);
         console.log(`✅ [modulesService] PUT response:`, response.data);
         return normalizeModule(response.data);
       }
@@ -80,6 +80,6 @@ export const modulesService = {
   },
 
   async delete(id: string): Promise<void> {
-    await apiClient.delete(`/plans/modules/${id}`);
+    await apiClient.delete(`/modules/${id}`);
   },
 };
