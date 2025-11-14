@@ -34,7 +34,7 @@ interface CreateModuleModalProps {
 export function CreateModuleModal({ open, onOpenChange, systems }: CreateModuleModalProps) {
   const createModule = useCreateModule();
 
-  const { register, handleSubmit, reset, watch, setValue, formState: { errors, isSubmitting } } = useForm<ModuleInput, unknown, ModuleOutput>({
+  const form = useForm<ModuleInput, unknown, ModuleOutput>({
     resolver: zodResolver(moduleSchema),
     defaultValues: {
       isActive: true,
@@ -43,8 +43,9 @@ export function CreateModuleModal({ open, onOpenChange, systems }: CreateModuleM
     } as Partial<ModuleInput>,
   });
 
-  const isActive = watch('isActive');
-  const selectedSystemId = watch('systemId');
+  const { register, handleSubmit, reset, setValue, formState: { errors, isSubmitting } } = form;
+  const isActive = form.watch('isActive');
+  const selectedSystemId = form.watch('systemId');
 
   const onSubmit: SubmitHandler<ModuleOutput> = async (data) => {
     try {

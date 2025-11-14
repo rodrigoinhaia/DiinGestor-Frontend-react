@@ -7,10 +7,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useSystems } from '@/hooks/useSystems';
 import { useModules } from '@/hooks/useModules';
-import { CreateSystemModal } from '@/components/CreateSystemModal';
-import { EditSystemModal } from '@/components/EditSystemModal';
-import { CreateModuleModal } from '@/components/CreateModuleModal';
-import { EditModuleModal } from '@/components/EditModuleModal';
+import { 
+  CreateSystemModal, 
+  EditSystemModal, 
+  CreateModuleModal, 
+  EditModuleModal 
+} from '@/components';
 import type { System, Module } from '@/types/api';
 
 export function ProductsSystemsPage() {

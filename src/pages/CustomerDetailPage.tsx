@@ -3,21 +3,19 @@ import { useState, useEffect } from 'react';
 import { 
   ArrowLeft, Edit, Trash2, Save, X, Search, 
   Building2, Mail, Phone, MapPin, Calendar, 
-  FileText, DollarSign, TrendingUp, Users,
+  FileText, DollarSign,
   Clock, AlertCircle, CheckCircle2, XCircle
 } from 'lucide-react';
 import { cnpjService } from '@/services/cnpjService';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
-import { Separator } from '@/components/ui/separator';
 import { useCustomer, useUpdateCustomer, useDeleteCustomer } from '@/hooks/useCustomers';
 import { toast } from 'sonner';
-import { useForm } from 'react-hook-form';
+import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 
@@ -26,7 +24,7 @@ const customerSchema = z.object({
   email: z.string().email('Email inválido'),
   phone: z.string().min(10, 'Telefone deve ter pelo menos 10 dígitos'),
   document: z.string().min(11, 'Documento inválido'),
-  isActive: z.boolean().default(true),
+  isActive: z.boolean(),
   address: z.object({
     street: z.string().min(1, 'Rua é obrigatória'),
     number: z.string().min(1, 'Número é obrigatório'),
@@ -121,7 +119,7 @@ export function CustomerDetailPage() {
       
       // Preencher campos automaticamente
       if (data.razao_social) setValue('name', data.razao_social);
-      if (data.ddd_telefone_1) setValue('phone', cnpjService.formatarTelefone(data.ddd_telefone_1));
+      if (data.telefone) setValue('phone', cnpjService.formatarTelefone(data.telefone));
       if (data.logradouro) setValue('address.street', data.logradouro);
       if (data.numero) setValue('address.number', data.numero);
       if (data.complemento) setValue('address.complement', data.complemento);
@@ -146,7 +144,7 @@ export function CustomerDetailPage() {
     }
   };
 
-  const onSubmit = async (data: CustomerFormData) => {
+  const onSubmit: SubmitHandler<CustomerFormData> = async (data) => {
     if (!id) return;
     
     console.log('📤 [CustomerDetailPage] Enviando update:', {

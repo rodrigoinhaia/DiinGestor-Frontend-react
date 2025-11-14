@@ -6,6 +6,7 @@ export interface CNPJData {
   cnpj: string;
   email?: string;
   telefone?: string;
+  ddd_telefone_1?: string;
   logradouro?: string;
   numero?: string;
   complemento?: string;
