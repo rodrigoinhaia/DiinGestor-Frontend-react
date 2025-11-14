@@ -42,6 +42,11 @@ const menuItems = [
     icon: Building2,
   },
   {
+    title: 'Produtos e Sistemas',
+    url: '/products-systems',
+    icon: Settings,
+  },
+  {
     title: 'Contratos',
     url: '/contracts',
     icon: FileText,

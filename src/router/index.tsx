@@ -4,6 +4,7 @@ import { DashboardPage } from '@/pages/DashboardPage';
 import { CustomersPage } from '@/pages/CustomersPage';
 import { CustomerDetailPage } from '@/pages/CustomerDetailPage';
 import { PlansPage } from '@/pages/PlansPage';
+import { ProductsSystemsPage } from '@/pages/ProductsSystemsPage';
 import { ContractsPage } from '@/pages/ContractsPage';
 import { InvoicesPage } from '@/pages/InvoicesPage';
 import { SettingsPage } from '@/pages/SettingsPage';
@@ -42,6 +43,10 @@ export const router = createBrowserRouter([
       {
         path: 'plans',
         element: <PlansPage />,
+      },
+      {
+        path: 'products-systems',
+        element: <ProductsSystemsPage />,
       },
       {
         path: 'contracts',

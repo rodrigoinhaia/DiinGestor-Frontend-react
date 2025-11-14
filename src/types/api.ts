@@ -115,6 +115,58 @@ export interface CreatePlanData {
   features: Omit<PlanFeature, 'id'>[];
 }
 
+// Tipos de sistemas
+export interface System {
+  id: string;
+  name: string;
+  description?: string;
+  code?: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+  modules?: Module[];
+}
+
+export interface CreateSystemData {
+  name: string;
+  description?: string;
+  code?: string;
+  isActive?: boolean;
+}
+
+export interface UpdateSystemData extends Partial<CreateSystemData> {
+  isActive?: boolean;
+}
+
+// Tipos de módulos
+export interface Module {
+  id: string;
+  name: string;
+  description?: string;
+  code?: string;
+  systemId: string;
+  system?: System;
+  costPrice: number;
+  salePrice: number;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateModuleData {
+  name: string;
+  description?: string;
+  code?: string;
+  systemId: string;
+  costPrice: number;
+  salePrice: number;
+  isActive?: boolean;
+}
+
+export interface UpdateModuleData extends Partial<CreateModuleData> {
+  isActive?: boolean;
+}
+
 // Tipos de faturas
 export interface Invoice {
   id: string;
