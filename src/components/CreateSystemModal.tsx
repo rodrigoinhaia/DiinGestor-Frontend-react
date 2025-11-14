@@ -1,5 +1,5 @@
 import type { SubmitHandler } from 'react-hook-form';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
@@ -28,12 +28,10 @@ interface CreateSystemModalProps {
 export function CreateSystemModal({ open, onOpenChange }: CreateSystemModalProps) {
   const createSystem = useCreateSystem();
 
-  const { register, handleSubmit, reset, watch, setValue, formState: { errors, isSubmitting } } = useForm<SystemInput, unknown, SystemOutput>({
+  const { register, handleSubmit, reset, control, formState: { errors, isSubmitting } } = useForm<SystemInput, unknown, SystemOutput>({
     resolver: zodResolver(systemSchema),
     defaultValues: { isActive: true } as Partial<SystemInput>,
   });
-
-  const isActive = watch('isActive');
 
   const onSubmit: SubmitHandler<SystemOutput> = async (data) => {
     try {
@@ -99,13 +97,19 @@ export function CreateSystemModal({ open, onOpenChange }: CreateSystemModalProps
             {/* Status */}
             <div className="col-span-6 space-y-1">
               <Label className="text-xs">Status do Sistema</Label>
-              <div className="flex items-center gap-2 h-8">
-                <Switch
-                  checked={isActive}
-                  onCheckedChange={(checked) => setValue('isActive', checked)}
-                />
-                <span className="text-sm">{isActive ? 'Sistema Ativo' : 'Sistema Inativo'}</span>
-              </div>
+              <Controller
+                name="isActive"
+                control={control}
+                render={({ field }) => (
+                  <div className="flex items-center gap-2 h-8">
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                    <span className="text-sm">{field.value ? 'Sistema Ativo' : 'Sistema Inativo'}</span>
+                  </div>
+                )}
+              />
             </div>
 
             {/* Descrição */}

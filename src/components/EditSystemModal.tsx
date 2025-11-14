@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import type { SubmitHandler } from 'react-hook-form';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
@@ -31,7 +31,7 @@ interface EditSystemModalProps {
 export function EditSystemModal({ open, onOpenChange, system }: EditSystemModalProps) {
   const updateSystem = useUpdateSystem();
 
-  const { register, handleSubmit, reset, watch, setValue, formState: { errors, isSubmitting } } = useForm<SystemInput, unknown, SystemOutput>({
+  const { register, handleSubmit, reset, control, formState: { errors, isSubmitting } } = useForm<SystemInput, unknown, SystemOutput>({
     resolver: zodResolver(systemSchema),
     values: {
       name: system.name,
@@ -51,8 +51,6 @@ export function EditSystemModal({ open, onOpenChange, system }: EditSystemModalP
       });
     }
   }, [system, reset]);
-
-  const isActive = watch('isActive');
 
   const onSubmit: SubmitHandler<SystemOutput> = async (data) => {
     try {
@@ -120,13 +118,19 @@ export function EditSystemModal({ open, onOpenChange, system }: EditSystemModalP
             {/* Status */}
             <div className="col-span-6 space-y-1">
               <Label className="text-xs">Status do Sistema</Label>
-              <div className="flex items-center gap-2 h-8">
-                <Switch
-                  checked={isActive}
-                  onCheckedChange={(checked) => setValue('isActive', checked)}
-                />
-                <span className="text-sm">{isActive ? 'Sistema Ativo' : 'Sistema Inativo'}</span>
-              </div>
+              <Controller
+                name="isActive"
+                control={control}
+                render={({ field }) => (
+                  <div className="flex items-center gap-2 h-8">
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                    <span className="text-sm">{field.value ? 'Sistema Ativo' : 'Sistema Inativo'}</span>
+                  </div>
+                )}
+              />
             </div>
 
             {/* Descrição */}

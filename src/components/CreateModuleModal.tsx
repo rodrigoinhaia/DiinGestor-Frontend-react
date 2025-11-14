@@ -1,5 +1,5 @@
 import type { SubmitHandler } from 'react-hook-form';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
@@ -34,7 +34,7 @@ interface CreateModuleModalProps {
 export function CreateModuleModal({ open, onOpenChange, systems }: CreateModuleModalProps) {
   const createModule = useCreateModule();
 
-  const form = useForm<ModuleInput, unknown, ModuleOutput>({
+  const { register, handleSubmit, reset, control, formState: { errors, isSubmitting } } = useForm<ModuleInput, unknown, ModuleOutput>({
     resolver: zodResolver(moduleSchema),
     defaultValues: {
       isActive: true,
@@ -42,10 +42,6 @@ export function CreateModuleModal({ open, onOpenChange, systems }: CreateModuleM
       salePrice: 0,
     } as Partial<ModuleInput>,
   });
-
-  const { register, handleSubmit, reset, setValue, formState: { errors, isSubmitting } } = form;
-  const isActive = form.watch('isActive');
-  const selectedSystemId = form.watch('systemId');
 
   const onSubmit: SubmitHandler<ModuleOutput> = async (data) => {
     try {
@@ -119,27 +115,30 @@ export function CreateModuleModal({ open, onOpenChange, systems }: CreateModuleM
             {/* Sistema */}
             <div className="col-span-12 space-y-1">
               <Label htmlFor="systemId" className="text-xs font-semibold">Sistema *</Label>
-              <Select
-                value={selectedSystemId}
-                onValueChange={(value) => setValue('systemId', value)}
-              >
-                <SelectTrigger className="h-8 text-sm">
-                  <SelectValue placeholder="Selecione o sistema" />
-                </SelectTrigger>
-                <SelectContent>
-                  {systems.length === 0 ? (
-                    <div className="p-2 text-sm text-muted-foreground">
-                      Nenhum sistema cadastrado
-                    </div>
-                  ) : (
-                    systems.filter(s => s.isActive).map((system) => (
-                      <SelectItem key={system.id} value={system.id}>
-                        {system.name}
-                      </SelectItem>
-                    ))
-                  )}
-                </SelectContent>
-              </Select>
+              <Controller
+                name="systemId"
+                control={control}
+                render={({ field }) => (
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <SelectTrigger className="h-8 text-sm">
+                      <SelectValue placeholder="Selecione o sistema" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {systems.length === 0 ? (
+                        <div className="p-2 text-sm text-muted-foreground">
+                          Nenhum sistema cadastrado
+                        </div>
+                      ) : (
+                        systems.filter(s => s.isActive).map((system) => (
+                          <SelectItem key={system.id} value={system.id}>
+                            {system.name}
+                          </SelectItem>
+                        ))
+                      )}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
               {errors.systemId && <p className="text-xs text-red-600">{errors.systemId.message}</p>}
             </div>
 
@@ -207,13 +206,19 @@ export function CreateModuleModal({ open, onOpenChange, systems }: CreateModuleM
             {/* Status */}
             <div className="col-span-12 space-y-1">
               <Label className="text-xs">Status do Módulo</Label>
-              <div className="flex items-center gap-2 h-8">
-                <Switch
-                  checked={isActive}
-                  onCheckedChange={(checked) => setValue('isActive', checked)}
-                />
-                <span className="text-sm">{isActive ? 'Módulo Ativo' : 'Módulo Inativo'}</span>
-              </div>
+              <Controller
+                name="isActive"
+                control={control}
+                render={({ field }) => (
+                  <div className="flex items-center gap-2 h-8">
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                    <span className="text-sm">{field.value ? 'Módulo Ativo' : 'Módulo Inativo'}</span>
+                  </div>
+                )}
+              />
             </div>
           </div>
 
