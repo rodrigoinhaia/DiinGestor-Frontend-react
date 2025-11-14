@@ -298,55 +298,57 @@ export function CustomerDetailPage() {
 
       {/* Cards de Resumo */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
+        <Card className="border-none bg-gradient-to-br from-blue-500 to-blue-700 text-white shadow-lg shadow-blue-500/50 hover:shadow-xl hover:shadow-blue-500/60 transition-all duration-300">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Contratos Ativos</CardTitle>
-            <FileText className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium text-white/90">Contratos Ativos</CardTitle>
+            <FileText className="h-5 w-5 text-white/80" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">0</div>
-            <p className="text-xs text-muted-foreground">Nenhum contrato ativo</p>
+            <div className="text-3xl font-bold">0</div>
+            <p className="text-xs text-white/70">Nenhum contrato ativo</p>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="border-none bg-gradient-to-br from-emerald-500 to-green-700 text-white shadow-lg shadow-emerald-500/50 hover:shadow-xl hover:shadow-emerald-500/60 transition-all duration-300">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Receita Mensal</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium text-white/90">Receita Mensal</CardTitle>
+            <DollarSign className="h-5 w-5 text-white/80" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(0)}</div>
-            <p className="text-xs text-muted-foreground">MRR atual</p>
+            <div className="text-3xl font-bold">{formatCurrency(0)}</div>
+            <p className="text-xs text-white/70">MRR atual</p>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="border-none bg-gradient-to-br from-orange-500 to-amber-600 text-white shadow-lg shadow-orange-500/50 hover:shadow-xl hover:shadow-orange-500/60 transition-all duration-300">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Faturas Pendentes</CardTitle>
-            <AlertCircle className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium text-white/90">Faturas Pendentes</CardTitle>
+            <AlertCircle className="h-5 w-5 text-white/80" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">0</div>
-            <p className="text-xs text-muted-foreground">Todas em dia</p>
+            <div className="text-3xl font-bold">0</div>
+            <p className="text-xs text-white/70">Todas em dia</p>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className={`border-none text-white shadow-lg hover:shadow-xl transition-all duration-300 ${
+          customer.isActive 
+            ? 'bg-gradient-to-br from-purple-500 to-indigo-700 shadow-purple-500/50 hover:shadow-purple-500/60' 
+            : 'bg-gradient-to-br from-gray-500 to-gray-700 shadow-gray-500/50 hover:shadow-gray-500/60'
+        }`}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Status</CardTitle>
+            <CardTitle className="text-sm font-medium text-white/90">Status</CardTitle>
             {customer.isActive ? (
-              <CheckCircle2 className="h-4 w-4 text-green-600" />
+              <CheckCircle2 className="h-5 w-5 text-white/80" />
             ) : (
-              <XCircle className="h-4 w-4 text-red-600" />
+              <XCircle className="h-5 w-5 text-white/80" />
             )}
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
-              <Badge variant={customer.isActive ? 'default' : 'secondary'} className="text-sm">
-                {customer.isActive ? 'Ativo' : 'Inativo'}
-              </Badge>
+            <div className="text-3xl font-bold">
+              {customer.isActive ? 'Ativo' : 'Inativo'}
             </div>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs text-white/70">
               Cliente desde {formatDate(customer.createdAt)}
             </p>
           </CardContent>
@@ -354,14 +356,19 @@ export function CustomerDetailPage() {
       </div>
 
       {/* Informações Rápidas */}
-      <Card>
+      <Card className="shadow-md hover:shadow-lg transition-shadow duration-300">
         <CardHeader>
-          <CardTitle className="text-lg">Informações Rápidas</CardTitle>
+          <CardTitle className="text-lg flex items-center gap-2">
+            <Building2 className="h-5 w-5 text-blue-600" />
+            Informações Rápidas
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             <div className="flex items-start gap-3">
-              <Building2 className="h-5 w-5 text-muted-foreground mt-0.5" />
+              <div className="p-2 bg-blue-100 rounded-lg">
+                <Building2 className="h-5 w-5 text-blue-600" />
+              </div>
               <div>
                 <p className="text-sm font-medium">CNPJ</p>
                 <p className="text-sm text-muted-foreground font-mono">{customer.document}</p>
@@ -369,7 +376,9 @@ export function CustomerDetailPage() {
             </div>
 
             <div className="flex items-start gap-3">
-              <Mail className="h-5 w-5 text-muted-foreground mt-0.5" />
+              <div className="p-2 bg-purple-100 rounded-lg">
+                <Mail className="h-5 w-5 text-purple-600" />
+              </div>
               <div>
                 <p className="text-sm font-medium">Email</p>
                 <p className="text-sm text-muted-foreground">{customer.email}</p>
@@ -377,7 +386,9 @@ export function CustomerDetailPage() {
             </div>
 
             <div className="flex items-start gap-3">
-              <Phone className="h-5 w-5 text-muted-foreground mt-0.5" />
+              <div className="p-2 bg-green-100 rounded-lg">
+                <Phone className="h-5 w-5 text-green-600" />
+              </div>
               <div>
                 <p className="text-sm font-medium">Telefone</p>
                 <p className="text-sm text-muted-foreground">{customer.phone}</p>
@@ -385,7 +396,9 @@ export function CustomerDetailPage() {
             </div>
 
             <div className="flex items-start gap-3">
-              <MapPin className="h-5 w-5 text-muted-foreground mt-0.5" />
+              <div className="p-2 bg-orange-100 rounded-lg">
+                <MapPin className="h-5 w-5 text-orange-600" />
+              </div>
               <div>
                 <p className="text-sm font-medium">Endereço</p>
                 <p className="text-sm text-muted-foreground">
@@ -398,7 +411,9 @@ export function CustomerDetailPage() {
             </div>
 
             <div className="flex items-start gap-3">
-              <Calendar className="h-5 w-5 text-muted-foreground mt-0.5" />
+              <div className="p-2 bg-indigo-100 rounded-lg">
+                <Calendar className="h-5 w-5 text-indigo-600" />
+              </div>
               <div>
                 <p className="text-sm font-medium">Cadastrado em</p>
                 <p className="text-sm text-muted-foreground">{formatDate(customer.createdAt)}</p>
@@ -406,7 +421,9 @@ export function CustomerDetailPage() {
             </div>
 
             <div className="flex items-start gap-3">
-              <Clock className="h-5 w-5 text-muted-foreground mt-0.5" />
+              <div className="p-2 bg-pink-100 rounded-lg">
+                <Clock className="h-5 w-5 text-pink-600" />
+              </div>
               <div>
                 <p className="text-sm font-medium">Última atualização</p>
                 <p className="text-sm text-muted-foreground">{formatDate(customer.updatedAt)}</p>
@@ -461,19 +478,19 @@ export function CustomerDetailPage() {
 
         <TabsContent value="financial" className="space-y-4">
           <div className="grid gap-4 md:grid-cols-3">
-            <Card>
+            <Card className="border-l-4 border-l-green-500 shadow-md hover:shadow-lg transition-shadow duration-300">
               <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium">Total Faturado</CardTitle>
+                <CardTitle className="text-sm font-medium text-green-700">Total Faturado</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{formatCurrency(0)}</div>
+                <div className="text-2xl font-bold text-green-600">{formatCurrency(0)}</div>
                 <p className="text-xs text-muted-foreground">Lifetime Value</p>
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="border-l-4 border-l-orange-500 shadow-md hover:shadow-lg transition-shadow duration-300">
               <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium">Em Aberto</CardTitle>
+                <CardTitle className="text-sm font-medium text-orange-700">Em Aberto</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold text-orange-600">{formatCurrency(0)}</div>
@@ -481,9 +498,9 @@ export function CustomerDetailPage() {
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="border-l-4 border-l-red-500 shadow-md hover:shadow-lg transition-shadow duration-300">
               <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium">Inadimplência</CardTitle>
+                <CardTitle className="text-sm font-medium text-red-700">Inadimplência</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold text-red-600">{formatCurrency(0)}</div>
