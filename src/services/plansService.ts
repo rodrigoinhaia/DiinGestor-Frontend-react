@@ -1,34 +1,25 @@
 import { apiClient } from './api';
+import type { Plan, CreatePlanData, UpdatePlanData } from '@/types/api';
 
-export interface Plan {
-  id: string;
-  name: string;
-  description: string;
-  price: number;
-  billingCycle: 'monthly' | 'quarterly' | 'annual';
-  features: Array<{
-    name: string;
-    included: boolean;
-  }>;
-  isActive: boolean;
-  contractsCount: number;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface CreatePlanData {
-  name: string;
-  description: string;
-  price: number;
-  billingCycle: 'monthly' | 'quarterly' | 'annual';
-  features: Array<{
-    name: string;
-    included: boolean;
-  }>;
-}
-
-export interface UpdatePlanData extends Partial<CreatePlanData> {
-  isActive?: boolean;
+function normalizePlan(data: unknown): Plan {
+  const raw = data as Record<string, unknown>;
+  
+  return {
+    id: raw.id as string,
+    name: raw.name as string,
+    description: raw.description as string | undefined,
+    billingCycle: raw.billingCycle as 'monthly' | 'quarterly' | 'annual',
+    baseCost: Number(raw.baseCost) || 0,
+    basePrice: Number(raw.basePrice) || 0,
+    finalPrice: Number(raw.finalPrice) || 0,
+    profit: Number(raw.profit) || 0,
+    profitMargin: Number(raw.profitMargin) || 0,
+    configuration: raw.configuration as Plan['configuration'],
+    modules: (raw.modules || []) as Plan['modules'],
+    isActive: Boolean(raw.isActive),
+    createdAt: raw.createdAt as string,
+    updatedAt: raw.updatedAt as string,
+  };
 }
 
 export const plansService = {
@@ -36,18 +27,17 @@ export const plansService = {
     const response = await apiClient.get('/plans');
     console.log('📦 GET /plans response:', response.data);
     
-    // Extrai envelope se necessário
-    const data = response.data.data || response.data;
-    const plans = Array.isArray(data) ? data : [];
-    return plans;
+    const rawData = response.data.data || response.data;
+    const data = Array.isArray(rawData) ? rawData : [];
+    return data.map(normalizePlan);
   },
 
   getById: async (id: string): Promise<Plan> => {
     const response = await apiClient.get(`/plans/${id}`);
     console.log(`📦 GET /plans/${id} response:`, response.data);
     
-    // Extrai envelope se necessário
-    return response.data.data || response.data;
+    const data = response.data.data || response.data;
+    return normalizePlan(data);
   },
 
   create: async (data: CreatePlanData): Promise<Plan> => {
@@ -55,15 +45,29 @@ export const plansService = {
     const response = await apiClient.post('/plans', data);
     console.log('✅ [plansService] POST /plans response:', response.data);
     
-    return response.data.data || response.data;
+    const result = response.data.data || response.data;
+    return normalizePlan(result);
   },
 
   update: async (id: string, data: UpdatePlanData): Promise<Plan> => {
-    console.log(`📤 [plansService] PUT /plans/${id} Payload:`, data);
-    const response = await apiClient.put(`/plans/${id}`, data);
-    console.log(`✅ [plansService] PUT /plans/${id} response:`, response.data);
+    console.log(`📤 [plansService] PATCH /plans/${id} Payload:`, data);
     
-    return response.data.data || response.data;
+    try {
+      const response = await apiClient.patch(`/plans/${id}`, data);
+      console.log(`✅ [plansService] PATCH /plans/${id} response:`, response.data);
+      
+      const result = response.data.data || response.data;
+      return normalizePlan(result);
+    } catch (error: unknown) {
+      const err = error as { response?: { status?: number } };
+      if (err?.response?.status === 404 || err?.response?.status === 405) {
+        console.log('⚠️ PATCH não suportado, tentando PUT...');
+        const response = await apiClient.put(`/plans/${id}`, data);
+        const result = response.data.data || response.data;
+        return normalizePlan(result);
+      }
+      throw error;
+    }
   },
 
   delete: async (id: string): Promise<void> => {

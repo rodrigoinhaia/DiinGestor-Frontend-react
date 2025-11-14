@@ -87,32 +87,57 @@ export interface CreateContractData {
 }
 
 // Tipos de planos
+export interface PlanModule {
+  id: string;
+  planId: string;
+  moduleId: string;
+  module: Module;
+  costPrice: number;  // Preço de repasse
+  salePrice: number;  // Preço de venda
+  isIncluded: boolean;
+}
+
+export interface PlanConfiguration {
+  maxUsers: number;
+  maxCompanies: number;
+  maxNFSeIssuers: number;
+  valuePerCompany: number;
+  customMenu: boolean;
+}
+
 export interface Plan {
   id: string;
   name: string;
   description?: string;
-  price: number;
   billingCycle: 'monthly' | 'quarterly' | 'annual';
-  features: PlanFeature[];
+  baseCost: number;  // Custo base (soma dos costPrice dos módulos)
+  basePrice: number; // Preço base (soma dos salePrice dos módulos)
+  finalPrice: number; // Preço final ao cliente
+  profit: number; // Lucro (finalPrice - baseCost)
+  profitMargin: number; // Margem de lucro %
+  configuration: PlanConfiguration;
+  modules: PlanModule[];
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
 }
 
-export interface PlanFeature {
-  id: string;
-  name: string;
-  description?: string;
-  included: boolean;
-  limit?: number;
-}
-
 export interface CreatePlanData {
   name: string;
   description?: string;
-  price: number;
   billingCycle: 'monthly' | 'quarterly' | 'annual';
-  features: Omit<PlanFeature, 'id'>[];
+  configuration: PlanConfiguration;
+  modules: Array<{
+    moduleId: string;
+    costPrice: number;
+    salePrice: number;
+    isIncluded: boolean;
+  }>;
+  finalPrice: number;
+}
+
+export interface UpdatePlanData extends Partial<CreatePlanData> {
+  isActive?: boolean;
 }
 
 // Tipos de sistemas

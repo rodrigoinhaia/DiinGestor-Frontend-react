@@ -59,14 +59,20 @@ export const modulesService = {
     console.log(`📤 [modulesService] PATCH /plans/modules/${id} Payload:`, data);
     try {
       const response = await apiClient.patch(`/plans/modules/${id}`, data);
-      console.log(`✅ [modulesService] PATCH /plans/modules/${id} response:`, response.data);
-      return normalizeModule(response.data);
+      console.log(`✅ [modulesService] PATCH /plans/modules/${id} response:`, response);
+      console.log(`📦 [modulesService] response.data:`, response.data);
+      const normalized = normalizeModule(response.data);
+      console.log(`🔄 [modulesService] normalized:`, normalized);
+      return normalized;
     } catch (error: unknown) {
+      const err = error as { response?: { status?: number; data?: unknown } };
+      console.error(`❌ [modulesService] PATCH error:`, err.response?.status, err.response?.data);
+      
       // Fallback para PUT se PATCH não suportado
-      const err = error as { response?: { status?: number } };
       if (err.response?.status === 404 || err.response?.status === 405) {
         console.log('⚠️ PATCH não suportado, tentando PUT...');
         const response = await apiClient.put(`/plans/modules/${id}`, data);
+        console.log(`✅ [modulesService] PUT response:`, response.data);
         return normalizeModule(response.data);
       }
       throw error;

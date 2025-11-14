@@ -46,14 +46,20 @@ export const systemsService = {
     console.log(`📤 [systemsService] PATCH /plans/systems/${id} Payload:`, data);
     try {
       const response = await apiClient.patch(`/plans/systems/${id}`, data);
-      console.log(`✅ [systemsService] PATCH /plans/systems/${id} response:`, response.data);
-      return normalizeSystem(response.data);
+      console.log(`✅ [systemsService] PATCH /plans/systems/${id} response:`, response);
+      console.log(`📦 [systemsService] response.data:`, response.data);
+      const normalized = normalizeSystem(response.data);
+      console.log(`🔄 [systemsService] normalized:`, normalized);
+      return normalized;
     } catch (error: unknown) {
+      const err = error as { response?: { status?: number; data?: unknown } };
+      console.error(`❌ [systemsService] PATCH error:`, err.response?.status, err.response?.data);
+      
       // Fallback para PUT se PATCH não suportado
-      const err = error as { response?: { status?: number } };
       if (err.response?.status === 404 || err.response?.status === 405) {
         console.log('⚠️ PATCH não suportado, tentando PUT...');
         const response = await apiClient.put(`/plans/systems/${id}`, data);
+        console.log(`✅ [systemsService] PUT response:`, response.data);
         return normalizeSystem(response.data);
       }
       throw error;
