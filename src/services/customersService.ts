@@ -43,25 +43,6 @@ export interface UpdateCustomerData extends Partial<CreateCustomerData> {
 
 // Backend retorna endereço "flat" (city, state, etc no nível raiz)
 // Frontend espera nested (address.city, address.state)
-interface BackendCustomer {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  document: string;
-  // Campos flat do endereço
-  city?: string;
-  state?: string;
-  zipCode?: string;
-  neighborhood?: string;
-  addressNumber?: string;
-  complement?: string;
-  street?: string;
-  isActive: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
-
 // Normalizar resposta do backend para formato do frontend
 // Backend usa: address (string), addressNumber, city, state, zipCode, neighborhood, complement
 // Frontend usa: address { street, number, city, state, zipCode, neighborhood, complement }
@@ -118,14 +99,15 @@ function denormalizeCustomer(data: CreateCustomerData | UpdateCustomerData): any
 export const customersService = {
   // Buscar todos os clientes
   getAll: async (): Promise<Customer[]> => {
-    const response = await apiClient.get('/customers');
+    const response = await apiClient.get<{ data?: any[] } | any[]>('/customers');
     console.log('📦 GET /customers response:', response.data);
     // Backend retorna { success: true, data: [...], meta: {...} }
     let customers: any[] = [];
-    if (response.data?.data && Array.isArray(response.data.data)) {
-      customers = response.data.data;
-    } else if (Array.isArray(response.data)) {
-      customers = response.data;
+    const responseData = response.data as any;
+    if (responseData?.data && Array.isArray(responseData.data)) {
+      customers = responseData.data;
+    } else if (Array.isArray(responseData)) {
+      customers = responseData;
     }
     // Normalizar cada cliente (backend retorna endereço flat)
     return customers.map(normalizeCustomer);
@@ -133,9 +115,9 @@ export const customersService = {
 
   // Buscar cliente por ID
   getById: async (id: string): Promise<Customer> => {
-    const response = await apiClient.get(`/customers/${id}`);
+    const response = await apiClient.get<{ data?: any } | any>(`/customers/${id}`);
     console.log('📦 GET /customers/:id response:', response.data);
-    const data = response.data?.data || response.data;
+    const data = (response.data as any)?.data || response.data;
     return normalizeCustomer(data);
   },
 
@@ -144,8 +126,8 @@ export const customersService = {
     const payload = denormalizeCustomer(data);
     console.log('📤 [customersService] POST /customers Payload:', JSON.stringify(payload, null, 2));
     try {
-      const response = await apiClient.post('/customers', payload);
-      const created = response.data?.data || response.data;
+      const response = await apiClient.post<{ data?: any } | any>('/customers', payload);
+      const created = (response.data as any)?.data || response.data;
       return normalizeCustomer(created);
     } catch (error: any) {
       if (error?.response?.status === 409) {
@@ -171,17 +153,17 @@ export const customersService = {
     console.log('📤 [customersService] PATCH /customers/' + id, 'Payload:', JSON.stringify(payload, null, 2));
     try {
       // Tentar PATCH primeiro (padrão REST para update parcial)
-      const response = await apiClient.patch(`/customers/${id}`, payload);
+      const response = await apiClient.patch<{ data?: any } | any>(`/customers/${id}`, payload);
       console.log('✅ [customersService] PATCH /customers response:', response.data);
       // Backend pode retornar envelope { success, data }
-      const updated = response.data?.data || response.data;
+      const updated = (response.data as any)?.data || response.data;
       return normalizeCustomer(updated);
     } catch (error: any) {
       // Se PATCH não funcionar, tentar PUT
       if (error?.response?.status === 404 || error?.response?.status === 405) {
         console.log('⚠️ PATCH failed, trying PUT...');
-        const response = await apiClient.put(`/customers/${id}`, payload);
-        const updated = response.data?.data || response.data;
+        const response = await apiClient.put<{ data?: any } | any>(`/customers/${id}`, payload);
+        const updated = (response.data as any)?.data || response.data;
         return normalizeCustomer(updated);
       }
       throw error;

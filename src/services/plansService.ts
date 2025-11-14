@@ -26,28 +26,28 @@ function normalizePlan(data: unknown): Plan {
 
 export const plansService = {
   getAll: async (): Promise<Plan[]> => {
-    const response = await apiClient.get('/plans');
+    const response = await apiClient.get<{ data?: unknown } | unknown>('/plans');
     console.log('📦 GET /plans response:', response.data);
     
-    const rawData = response.data.data || response.data;
+    const rawData = (response.data as { data?: unknown })?.data || response.data;
     const data = Array.isArray(rawData) ? rawData : [];
     return data.map(normalizePlan);
   },
 
   getById: async (id: string): Promise<Plan> => {
-    const response = await apiClient.get(`/plans/${id}`);
+    const response = await apiClient.get<{ data?: unknown } | unknown>(`/plans/${id}`);
     console.log(`📦 GET /plans/${id} response:`, response.data);
     
-    const data = response.data.data || response.data;
+    const data = (response.data as { data?: unknown })?.data || response.data;
     return normalizePlan(data);
   },
 
   create: async (data: CreatePlanData): Promise<Plan> => {
     console.log('📤 [plansService] POST /plans Payload:', data);
-    const response = await apiClient.post('/plans', data);
+    const response = await apiClient.post<{ data?: unknown } | unknown>('/plans', data);
     console.log('✅ [plansService] POST /plans response:', response.data);
     
-    const result = response.data.data || response.data;
+    const result = (response.data as { data?: unknown })?.data || response.data;
     return normalizePlan(result);
   },
 
@@ -55,17 +55,17 @@ export const plansService = {
     console.log(`📤 [plansService] PATCH /plans/${id} Payload:`, data);
     
     try {
-      const response = await apiClient.patch(`/plans/${id}`, data);
+      const response = await apiClient.patch<{ data?: unknown } | unknown>(`/plans/${id}`, data);
       console.log(`✅ [plansService] PATCH /plans/${id} response:`, response.data);
       
-      const result = response.data.data || response.data;
+      const result = (response.data as { data?: unknown })?.data || response.data;
       return normalizePlan(result);
     } catch (error: unknown) {
       const err = error as { response?: { status?: number } };
       if (err?.response?.status === 404 || err?.response?.status === 405) {
         console.log('⚠️ PATCH não suportado, tentando PUT...');
-        const response = await apiClient.put(`/plans/${id}`, data);
-        const result = response.data.data || response.data;
+        const response = await apiClient.put<{ data?: unknown } | unknown>(`/plans/${id}`, data);
+        const result = (response.data as { data?: unknown })?.data || response.data;
         return normalizePlan(result);
       }
       throw error;

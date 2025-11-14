@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { CreatePlanModal } from '@/components/CreatePlanModal';
 import { usePlans } from '@/hooks/usePlans';
+import type { Plan } from '@/types/api';
 
 // Dados mockados para desenvolvimento
 const mockPlans = [
@@ -91,9 +92,16 @@ export function PlansPage() {
   const { data: apiPlans, isLoading, isError } = usePlans();
   const plans = apiPlans || mockPlans;
 
-  const filteredPlans = plans.filter(plan =>
+  // Type guard to ensure we're working with correct Plan type
+  const isValidPlan = (plan: any): plan is Plan => {
+    return 'finalPrice' in plan && 'modules' in plan;
+  };
+
+  const validPlans = plans.filter(isValidPlan);
+
+  const filteredPlans = validPlans.filter(plan =>
     plan.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    plan.description.toLowerCase().includes(searchTerm.toLowerCase())
+    (plan.description?.toLowerCase() || '').includes(searchTerm.toLowerCase())
   );
 
   const formatCurrency = (value: number) => {
@@ -187,7 +195,7 @@ export function PlansPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {plans.reduce((acc, p) => acc + p.contractsCount, 0)}
+              {validPlans.reduce((acc, p) => acc + (p.modules?.length || 0), 0)}
             </div>
             <p className="text-xs text-muted-foreground">
               Total de assinantes
@@ -201,7 +209,7 @@ export function PlansPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {formatCurrency(plans.reduce((acc, p) => acc + (p.price * p.contractsCount), 0))}
+              {formatCurrency(validPlans.reduce((acc, p) => acc + p.finalPrice, 0))}
             </div>
             <p className="text-xs text-muted-foreground">
               MRR dos planos
@@ -274,29 +282,29 @@ export function PlansPage() {
                 <CardContent className="space-y-4">
                   {/* Price */}
                   <div className="text-center">
-                    <div className="text-3xl font-bold">{formatCurrency(plan.price)}</div>
+                    <div className="text-3xl font-bold">{formatCurrency(plan.finalPrice)}</div>
                     <div className="text-sm text-muted-foreground">
                       por {getBillingCycleText(plan.billingCycle).toLowerCase()}
                     </div>
                   </div>
 
-                  {/* Features */}
+                  {/* Modules */}
                   <div className="space-y-2">
-                    <h4 className="text-sm font-medium">Funcionalidades:</h4>
+                    <h4 className="text-sm font-medium">Módulos:</h4>
                     <ul className="space-y-1">
-                      {plan.features.slice(0, 4).map((feature, index) => (
+                      {(plan.modules || []).slice(0, 4).map((planModule: any, index: number) => (
                         <li key={index} className="flex items-center text-sm">
                           <div className={`w-2 h-2 rounded-full mr-2 ${
-                            feature.included ? 'bg-green-500' : 'bg-gray-300'
+                            planModule.isIncluded ? 'bg-green-500' : 'bg-gray-300'
                           }`} />
-                          <span className={feature.included ? '' : 'text-muted-foreground line-through'}>
-                            {feature.name}
+                          <span className={planModule.isIncluded ? '' : 'text-muted-foreground line-through'}>
+                            {planModule.module?.name || 'Módulo'}
                           </span>
                         </li>
                       ))}
-                      {plan.features.length > 4 && (
+                      {(plan.modules || []).length > 4 && (
                         <li className="text-sm text-muted-foreground">
-                          +{plan.features.length - 4} mais funcionalidades
+                          +{plan.modules.length - 4} mais módulos
                         </li>
                       )}
                     </ul>
@@ -305,8 +313,8 @@ export function PlansPage() {
                   {/* Stats */}
                   <div className="flex justify-between text-sm">
                     <div>
-                      <div className="font-medium">{plan.contractsCount}</div>
-                      <div className="text-muted-foreground">Contratos</div>
+                      <div className="font-medium">{plan.modules?.length || 0}</div>
+                      <div className="text-muted-foreground">Módulos</div>
                     </div>
                     <div className="text-right">
                       <div className="font-medium">{formatDate(plan.createdAt)}</div>

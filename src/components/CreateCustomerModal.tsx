@@ -1,6 +1,6 @@
 // React import not needed with the automatic JSX runtime
 import { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Search, Loader2 } from 'lucide-react';
@@ -25,7 +25,6 @@ const customerSchema = z.object({
   email: z.string().email('Email inválido'),
   phone: z.string().min(10, 'Telefone deve ter pelo menos 10 dígitos'),
   document: z.string().min(11, 'Documento inválido'),
-  isActive: z.boolean().default(true),
   address: z.object({
     street: z.string().min(1, 'Rua é obrigatória'),
     number: z.string().min(1, 'Número é obrigatório'),
@@ -37,7 +36,9 @@ const customerSchema = z.object({
   }),
 });
 
-type CustomerFormData = z.infer<typeof customerSchema>;
+type CustomerFormData = z.infer<typeof customerSchema> & {
+  isActive?: boolean;
+};
 
 interface CreateCustomerModalProps {
   open: boolean;
@@ -62,14 +63,15 @@ export function CreateCustomerModal({ open, onOpenChange, onShowCustomer }: Crea
     formState: { errors, isSubmitting },
   } = useForm<CustomerFormData>({
     resolver: zodResolver(customerSchema),
-    defaultValues: { isActive: true }
   });
 
   const cnpjValue = watch('document');
 
-  const onSubmit = async (data: CustomerFormData) => {
+  const onSubmit: SubmitHandler<CustomerFormData> = async (data) => {
+    // Garantir isActive default
+    const customerData = { ...data, isActive: data.isActive ?? true };
     // Verificação prévia para evitar chamada desnecessária se já existir CNPJ
-    const normalizedDoc = data.document.replace(/[^\d]/g, '');
+    const normalizedDoc = customerData.document.replace(/[^\d]/g, '');
     const list = Array.isArray(existingCustomers)
       ? existingCustomers
       : Array.isArray((existingCustomers as any)?.customers)
@@ -83,7 +85,7 @@ export function CreateCustomerModal({ open, onOpenChange, onShowCustomer }: Crea
     }
 
     try {
-      await createCustomerMutation.mutateAsync({ ...data, isActive: data.isActive });
+      await createCustomerMutation.mutateAsync(customerData);
       toast.success('Cliente criado com sucesso!');
       reset();
       onOpenChange(false);
