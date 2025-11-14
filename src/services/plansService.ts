@@ -34,22 +34,36 @@ export interface UpdatePlanData extends Partial<CreatePlanData> {
 export const plansService = {
   getAll: async (): Promise<Plan[]> => {
     const response = await apiClient.get('/plans');
-    return response.data as Plan[];
+    console.log('📦 GET /plans response:', response.data);
+    
+    // Extrai envelope se necessário
+    const data = response.data.data || response.data;
+    const plans = Array.isArray(data) ? data : [];
+    return plans;
   },
 
   getById: async (id: string): Promise<Plan> => {
     const response = await apiClient.get(`/plans/${id}`);
-    return response.data as Plan;
+    console.log(`📦 GET /plans/${id} response:`, response.data);
+    
+    // Extrai envelope se necessário
+    return response.data.data || response.data;
   },
 
   create: async (data: CreatePlanData): Promise<Plan> => {
+    console.log('📤 [plansService] POST /plans Payload:', data);
     const response = await apiClient.post('/plans', data);
-    return response.data as Plan;
+    console.log('✅ [plansService] POST /plans response:', response.data);
+    
+    return response.data.data || response.data;
   },
 
   update: async (id: string, data: UpdatePlanData): Promise<Plan> => {
+    console.log(`📤 [plansService] PUT /plans/${id} Payload:`, data);
     const response = await apiClient.put(`/plans/${id}`, data);
-    return response.data as Plan;
+    console.log(`✅ [plansService] PUT /plans/${id} response:`, response.data);
+    
+    return response.data.data || response.data;
   },
 
   delete: async (id: string): Promise<void> => {
