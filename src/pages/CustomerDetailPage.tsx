@@ -1,6 +1,11 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { ArrowLeft, Edit, Trash2, Save, X, Search } from 'lucide-react';
+import { 
+  ArrowLeft, Edit, Trash2, Save, X, Search, 
+  Building2, Mail, Phone, MapPin, Calendar, 
+  FileText, DollarSign, TrendingUp, Users,
+  Clock, AlertCircle, CheckCircle2, XCircle
+} from 'lucide-react';
 import { cnpjService } from '@/services/cnpjService';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,6 +14,7 @@ import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
+import { Separator } from '@/components/ui/separator';
 import { useCustomer, useUpdateCustomer, useDeleteCustomer } from '@/hooks/useCustomers';
 import { toast } from 'sonner';
 import { useForm } from 'react-hook-form';
@@ -234,21 +240,33 @@ export function CustomerDetailPage() {
     );
   }
 
+  const formatCurrency = (value: number) => {
+    return value.toLocaleString('pt-BR', {
+      style: 'currency',
+      currency: 'BRL'
+    });
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('pt-BR');
+  };
+
   return (
-    <div className="space-y-6">
-      {/* Header */}
+    <div className="space-y-6 pb-8">
+      {/* Header com Breadcrumb e Ações */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Button variant="ghost" size="icon" onClick={() => navigate('/customers')}>
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <div>
+            <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
+              <span>Clientes</span>
+              <span>/</span>
+              <span className="text-foreground font-medium">{customer.name}</span>
+            </div>
             <h1 className="text-3xl font-bold tracking-tight">{customer.name}</h1>
-            <p className="text-muted-foreground">{customer.document}</p>
           </div>
-          <Badge variant={customer.isActive ? 'default' : 'secondary'}>
-            {customer.isActive ? 'Ativo' : 'Inativo'}
-          </Badge>
         </div>
         
         <div className="flex gap-2">
@@ -278,16 +296,235 @@ export function CustomerDetailPage() {
         </div>
       </div>
 
+      {/* Cards de Resumo */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Contratos Ativos</CardTitle>
+            <FileText className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">0</div>
+            <p className="text-xs text-muted-foreground">Nenhum contrato ativo</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Receita Mensal</CardTitle>
+            <DollarSign className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{formatCurrency(0)}</div>
+            <p className="text-xs text-muted-foreground">MRR atual</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Faturas Pendentes</CardTitle>
+            <AlertCircle className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">0</div>
+            <p className="text-xs text-muted-foreground">Todas em dia</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Status</CardTitle>
+            {customer.isActive ? (
+              <CheckCircle2 className="h-4 w-4 text-green-600" />
+            ) : (
+              <XCircle className="h-4 w-4 text-red-600" />
+            )}
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              <Badge variant={customer.isActive ? 'default' : 'secondary'} className="text-sm">
+                {customer.isActive ? 'Ativo' : 'Inativo'}
+              </Badge>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Cliente desde {formatDate(customer.createdAt)}
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Informações Rápidas */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">Informações Rápidas</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <div className="flex items-start gap-3">
+              <Building2 className="h-5 w-5 text-muted-foreground mt-0.5" />
+              <div>
+                <p className="text-sm font-medium">CNPJ</p>
+                <p className="text-sm text-muted-foreground font-mono">{customer.document}</p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-3">
+              <Mail className="h-5 w-5 text-muted-foreground mt-0.5" />
+              <div>
+                <p className="text-sm font-medium">Email</p>
+                <p className="text-sm text-muted-foreground">{customer.email}</p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-3">
+              <Phone className="h-5 w-5 text-muted-foreground mt-0.5" />
+              <div>
+                <p className="text-sm font-medium">Telefone</p>
+                <p className="text-sm text-muted-foreground">{customer.phone}</p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-3">
+              <MapPin className="h-5 w-5 text-muted-foreground mt-0.5" />
+              <div>
+                <p className="text-sm font-medium">Endereço</p>
+                <p className="text-sm text-muted-foreground">
+                  {customer.address.street}, {customer.address.number}
+                  {customer.address.complement && ` - ${customer.address.complement}`}
+                  <br />
+                  {customer.address.neighborhood}, {customer.address.city}/{customer.address.state}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-3">
+              <Calendar className="h-5 w-5 text-muted-foreground mt-0.5" />
+              <div>
+                <p className="text-sm font-medium">Cadastrado em</p>
+                <p className="text-sm text-muted-foreground">{formatDate(customer.createdAt)}</p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-3">
+              <Clock className="h-5 w-5 text-muted-foreground mt-0.5" />
+              <div>
+                <p className="text-sm font-medium">Última atualização</p>
+                <p className="text-sm text-muted-foreground">{formatDate(customer.updatedAt)}</p>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Tabs */}
-      <Tabs defaultValue="general" className="w-full">
-        <TabsList>
-          <TabsTrigger value="general">Informações Gerais</TabsTrigger>
+      <Tabs defaultValue="contracts" className="w-full">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="contracts">Contratos</TabsTrigger>
           <TabsTrigger value="invoices">Faturas</TabsTrigger>
-          <TabsTrigger value="history">Histórico</TabsTrigger>
+          <TabsTrigger value="financial">Financeiro</TabsTrigger>
+          <TabsTrigger value="tickets">Tickets</TabsTrigger>
+          <TabsTrigger value="details">Dados Cadastrais</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="general" className="space-y-4">
+        <TabsContent value="contracts" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Contratos</CardTitle>
+              <CardDescription>Contratos ativos e histórico</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center py-8 text-muted-foreground">
+                <FileText className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                <p>Nenhum contrato cadastrado</p>
+                <Button className="mt-4" variant="outline">
+                  Novo Contrato
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="invoices" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Faturas</CardTitle>
+              <CardDescription>Faturas emitidas e pendentes</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center py-8 text-muted-foreground">
+                <FileText className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                <p>Nenhuma fatura emitida</p>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="financial" className="space-y-4">
+          <div className="grid gap-4 md:grid-cols-3">
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium">Total Faturado</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{formatCurrency(0)}</div>
+                <p className="text-xs text-muted-foreground">Lifetime Value</p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium">Em Aberto</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-orange-600">{formatCurrency(0)}</div>
+                <p className="text-xs text-muted-foreground">Aguardando pagamento</p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium">Inadimplência</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-red-600">{formatCurrency(0)}</div>
+                <p className="text-xs text-muted-foreground">Faturas vencidas</p>
+              </CardContent>
+            </Card>
+          </div>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Histórico de Pagamentos</CardTitle>
+              <CardDescription>Últimos pagamentos recebidos</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center py-8 text-muted-foreground">
+                <DollarSign className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                <p>Nenhum pagamento registrado</p>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="tickets" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Tickets de Suporte</CardTitle>
+              <CardDescription>Chamados e solicitações</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center py-8 text-muted-foreground">
+                <AlertCircle className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                <p>Nenhum ticket aberto</p>
+                <Button className="mt-4" variant="outline">
+                  Novo Ticket
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="details" className="space-y-4">
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             {/* Status */}
             {isEditing && (
@@ -412,42 +649,6 @@ export function CustomerDetailPage() {
               </CardContent>
             </Card>
           </form>
-        </TabsContent>
-
-        <TabsContent value="contracts">
-          <Card>
-            <CardHeader>
-              <CardTitle>Contratos</CardTitle>
-              <CardDescription>Contratos ativos e histórico</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground">Em desenvolvimento...</p>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="invoices">
-          <Card>
-            <CardHeader>
-              <CardTitle>Faturas</CardTitle>
-              <CardDescription>Faturas emitidas e pendentes</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground">Em desenvolvimento...</p>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="history">
-          <Card>
-            <CardHeader>
-              <CardTitle>Histórico de Atividades</CardTitle>
-              <CardDescription>Log de alterações e ações</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground">Em desenvolvimento...</p>
-            </CardContent>
-          </Card>
         </TabsContent>
       </Tabs>
     </div>
